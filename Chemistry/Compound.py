@@ -1,14 +1,15 @@
 import numpy as np
 from rdkit import Chem
 
-from utils.constants import *
-from utils.func import *
-
+from dGbyG.utils.constants import *
+from dGbyG.utils.func import *
+from dGbyG.api.inference import predict
 
 
 class Compound(object):
     def __init__(self, mol) -> None:
         self.mol = mol
+        self._condition = default_condition
         
 
     def pKa(self, temperature=default_T):
@@ -37,5 +38,19 @@ class Compound(object):
         return ddGf(self, condition1, condition2) if self.can_be_transform else False
     
 
-    def standard_dGf(self):
-        pass
+    @property
+    def condition(self):
+        return self._condition
+    
+    @condition.setter
+    def condition(self, condition:dict):
+        for k, v in condition.items():
+            self._condition[k] = v
+    
+
+    @property
+    def standard_dGf_prime(self):
+        return predict(self.mol, self.condition)
+    
+
+

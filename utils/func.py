@@ -6,8 +6,143 @@ from rdkit import Chem
 import numpy as np
 import pandas as pd
 
-from config import *
-from .constants import *
+from dGbyG.config import *
+from dGbyG.utils.constants import *
+
+
+
+
+def parse_equation(equation:str, eq_sign=None) -> dict:
+    # 
+    eq_Signs = [' = ', ' <=> ', ' -> ']
+    if eq_sign:
+        equation = equation.split(eq_sign)
+    else:
+        for eq_sign in eq_Signs:
+            if eq_sign in equation:
+                equation = equation.split(eq_sign)
+                break
+    
+    equation_dict = {}
+    equation = [x.split(' + ') for x in equation]
+
+    for side, coefficient in zip(equation, (-1,1)):
+        for t in side:
+            if (reactant := re.match(r'^(\d+) (.+)$', t)) or (reactant := re.match(r'^(\d+\.\d+) (.+)$', t)):
+                value = float(reactant.group(1))
+                entry = reactant.group(2)
+                equation_dict[entry] = equation_dict.get(entry,0) + value * coefficient
+            else:
+                equation_dict[t] = equation_dict.get(t,0) + coefficient
+
+    return equation_dict
+
+
+def build_equation(equation_dict:dict, eq_sign='=') -> str:
+    # 
+    left, right = [], []
+    for comp, coeff in equation_dict.items():
+        if coeff < 0:
+            x = comp if coeff==-1 else str(-coeff)+' '+comp
+            left.append(x)
+        elif coeff > 0:
+            x = comp if coeff==1 else str(coeff)+' '+comp
+            right.append(x)
+        elif coeff == 0:
+            left.append(comp)
+            right.append(comp)
+
+    equation = ' + '.join(left)+' '+eq_sign.strip()+' '+' + '.join(right)
+    return equation
+
+
+
+def to_mol(cid, cid_type='auto') -> rdkit.Chem.rdchem.Mol:
+    #
+    
+    def inchi_to_mol(inchi:str):
+        mol = Chem.MolFromInchi(inchi, removeHs=False)
+        return Chem.AddHs(mol)
+    
+    def smiles_to_mol(smiles:str):
+        mol = Chem.MolFromSmiles(smiles)
+        return Chem.AddHs(mol)
+    
+    def file_to_mol(path:str):
+        mol = Chem.MolFromMolFile(path, removeHs=False)
+        return Chem.AddHs(mol)
+    
+    def kegg_entry_to_mol(entry:str):
+        path = os.path.join(kegg_compound_data_path, entry+'.mol')
+        if os.path.exists(path):
+            mol = file_to_mol(path)
+        elif download_kegg_compound(entry):
+            mol = file_to_mol(path)
+        else:
+            kegg_additions_df = pd.read_csv(kegg_additions_csv_path, index_col=0)
+            if entry in kegg_additions_df.index:
+                inchi = kegg_additions_df.loc[entry, 'inchi']
+                mol = inchi_to_mol(inchi) if pd.notna(inchi) else None
+        return Chem.AddHs(mol)
+    
+    def metanetx_id_to_mol(id:str):
+        matenetx_df = pd.read_csv('./data/MetaNetX/chem_prop.tsv', sep='\t', header=351, index_col=0)
+        smiles = (matenetx_df.loc[id, 'SMILES'])
+        mol = smiles_to_mol(smiles)
+        return Chem.AddHs(mol)
+
+    
+    # the main body
+    methods = {'inchi': inchi_to_mol,
+               'smiles': smiles_to_mol,
+               'kegg': kegg_entry_to_mol,
+               'metanetx': metanetx_id_to_mol,
+               'file': file_to_mol,
+               }
+    if cid_type=='auto':
+        pass
+    else:
+        assert cid_type.lower() in can_be_recognized_cids, f'{cid_type} id cannot be recognized'
+        _to_mol = methods.get(cid_type)
+    try:
+        mol = _to_mol(cid)
+        mol = Chem.AddHs(mol)
+    except:
+        mol = False
+    
+    return mol
+
+
+def equation_dict_to_mol_dict(equation_dict:dict, cid_type):
+    if type(cid_type)==str:
+        cid_Types = [cid_type.lower()] * len(equation_dict)
+    elif type(cid_type)==list:
+        assert len(cid_type)==len(equation_dict)
+        cid_Types = cid_type
+
+    mol_dict = dict(map(lambda item: (to_mol(item[0][0], item[1]), item[0][1]),
+                        zip(equation_dict.items(), cid_Types)))
+    
+    return mol_dict if not False in mol_dict else False
+
+
+def equation_to_mol_dict(equation, cid_type):
+    equation_dict = parse_equation(equation)
+    
+    return equation_dict_to_mol_dict(equation_dict, cid_type)
+
+
+
+def atom_bag(mol:rdkit.Chem.rdchem.Mol):
+    atom_bag = {}
+    charge = 0
+    for atom in mol.GetAtoms():
+        atom_bag[atom.GetSymbol()] = 1 + atom_bag.get(atom.GetSymbol(), 0)
+        charge += atom.GetFormalCharge()
+    atom_bag['charge'] = charge
+        
+    return atom_bag
+
 
 
 def get_pKa(compound, temperature:float=default_T, source='auto') -> list:
@@ -58,73 +193,6 @@ def get_pKa(compound, temperature:float=default_T, source='auto') -> list:
     return pKa
 
 
-def atom_bag(mol:rdkit.Chem.rdchem.Mol):
-    atom_bag = {}
-    charge = 0
-    for atom in mol.GetAtoms():
-        atom_bag[atom.GetSymbol()] = 1 + atom_bag.get(atom.GetSymbol(), 0)
-        charge += atom.GetFormalCharge()
-    atom_bag['charge'] = charge
-        
-    return atom_bag
-
-
-def to_mol(cid, cid_type='auto') -> rdkit.Chem.rdchem.Mol:
-    #
-    
-    def inchi_to_mol(inchi:str):
-        mol = Chem.MolFromInchi(inchi, removeHs=False)
-        return Chem.AddHs(mol)
-    
-    def smiles_to_mol(smiles:str):
-        mol = Chem.MolFromSmiles(smiles)
-        return Chem.AddHs(mol)
-    
-    def file_to_mol(path:str):
-        mol = Chem.MolFromMolFile(path, removeHs=False)
-        return Chem.AddHs(mol)
-    
-    def kegg_entry_to_mol(entry:str):
-        path = os.path.join(kegg_compound_data_path, entry+'.mol')
-        if os.path.exists(path):
-            mol = file_to_mol(path)
-        elif download_kegg_compound(entry):
-            mol = file_to_mol(path)
-        else:
-            kegg_additions_df = pd.read_csv(kegg_additions_csv_path, index_col=0)
-            if entry in kegg_additions_df.index:
-                inchi = kegg_additions_df.loc[entry, 'inchi']
-                mol = inchi_to_mol(inchi) if pd.notna(inchi) else None
-        return Chem.AddHs(mol)
-    
-    def metanetx_id_to_mol(id:str):
-        matenetx_df = pd.read_csv('./data/MetaNetX/chem_prop.tsv', sep='\t', header=351, index_col=0)
-        smiles = (matenetx_df.loc[id, 'SMILES'])
-        mol = smiles_to_mol(smiles)
-        return Chem.AddHs(mol)
-
-    
-    # the main body
-    methods = {'inchi': inchi_to_mol,
-               'InChI': inchi_to_mol,
-               'smiles': smiles_to_mol,
-               'Smiles': smiles_to_mol,
-               'file': file_to_mol,
-               'kegg': kegg_entry_to_mol,
-               'KEGG': kegg_entry_to_mol,
-               'metanetx': metanetx_id_to_mol,
-               'MetaNetX': metanetx_id_to_mol,
-               }
-    if cid_type=='auto':
-        pass
-    _to_mol = methods.get(cid_type)
-    try:
-        mol = _to_mol(cid)
-        mol = Chem.AddHs(mol)
-    except:
-        mol = False
-    
-    return mol
 
 
 
@@ -238,51 +306,6 @@ def ddGr(reaction, condition1, condition2):
         return None
     return sum(ddGf_list)
 
-
-
-
-def parse_equation(equation:str, eq_sign=None) -> dict:
-    # 
-    eq_Signs = [' = ', ' <=> ', ' -> ']
-    if eq_sign:
-        equation = equation.split(eq_sign)
-    else:
-        for eq_sign in eq_Signs:
-            if eq_sign in equation:
-                equation = equation.split(eq_sign)
-                break
-    
-    equation_dict = {}
-    equation = [x.split(' + ') for x in equation]
-
-    for side, coefficient in zip(equation, (-1,1)):
-        for t in side:
-            if (reactant := re.match(r'^(\d+) (.+)$', t)) or (reactant := re.match(r'^(\d+\.\d+) (.+)$', t)):
-                value = float(reactant.group(1))
-                entry = reactant.group(2)
-                equation_dict[entry] = equation_dict.get(entry,0) + value * coefficient
-            else:
-                equation_dict[t] = equation_dict.get(t,0) + coefficient
-
-    return equation_dict
-
-
-def build_equation(equation_dict, eq_sign='=') -> str:
-    # 
-    left, right = [], []
-    for comp, coeff in equation_dict.items():
-        if coeff < 0:
-            x = comp if coeff==-1 else str(-coeff)+' '+comp
-            left.append(x)
-        elif coeff > 0:
-            x = comp if coeff==1 else str(coeff)+' '+comp
-            right.append(x)
-        elif coeff == 0:
-            left.append(comp)
-            right.append(comp)
-
-    equation = ' + '.join(left)+' '+eq_sign.strip()+' '+' + '.join(right)
-    return equation
 
 
 def equations_to_S(equations) -> pd.DataFrame:

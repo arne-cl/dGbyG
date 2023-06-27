@@ -1,17 +1,30 @@
 import numpy as np
 from rdkit import Chem
 
-from .Compound import Compound
-from utils.constants import *
-from utils.func import *
-
+from dGbyG.utils.constants import *
+from dGbyG.utils.func import *
+from dGbyG.Chemistry.Compound import Compound
+from dGbyG.api.inference import predict
 
 
 class Reaction(object):
-    def __init__(self, reaction) -> None:
-        self.reaction = reaction
-        self.equation_dict = parse_equation(reaction)
-        
+    def __init__(self, reaction, rxn_type='str', cid_type='smiles') -> None:
+        if cid_type == 'compound':
+            self.rxn = compound_dict if not False in compound_dict else False
+        else:
+            if rxn_type == 'str':
+                self.reaction = reaction
+                self.equation_dict = parse_equation(reaction)
+                self.mol_dict = equation_to_mol_dict(reaction, cid_type)
+            elif rxn_type == 'dict' and cid_type == 'mol':
+                self.mol_dict = reaction
+            else:
+                self.mol_dict = equation_dict_to_mol_dict(reaction, cid_type)
+
+            compound_dict = dict(map(lambda item: (Compound(item[0]), item[1]),
+                                     self.mol_dict.items()))
+            self.rxn = compound_dict if not False in compound_dict else False
+            
 
     def pKa(self, temperature=default_T):
         pKa = []
@@ -19,18 +32,6 @@ class Reaction(object):
             pKa.append(compound.pKa(temperature))
         return pKa
     
-    
-    @property
-    def rxn(self) -> dict:
-        if type(self.cid_type)==str:
-            cid_Types = [self.cid_type] * len(self.equation_dict)
-        elif type(self.cid_type)==list:
-            assert len(self.cid_type)==len(self.equation_dict)
-            cid_Types = self.cid_type
-        rxn_dict = dict(map(lambda item: (Compound(to_mol(item[0][0], item[1])), item[0][1]), 
-                            zip(self.equation_dict.items(),cid_Types)))
-        rxn_dict = rxn_dict if not False in rxn_dict else False
-        return rxn_dict
     
     @property
     def rxnSmiles(self):
@@ -61,5 +62,12 @@ class Reaction(object):
         return ddGr(self.rxn, condition1, condition2) if self.can_be_transform else None
     
 
-    def standard_dGf(self):
-        pass
+    @property
+    def standard_dGr_prime(self):
+        return self._standard_dGr_prime
+    
+    @standard_dGr_prime.setter
+    def standard_dGr_prime(self, conditions):
+        self._standard_dGr_prime = 0
+        for comp, coeff in self.rxn:
+            self._standard_dGr_prime = 3
