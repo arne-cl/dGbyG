@@ -1,0 +1,227 @@
+cid,name,standard_dg_prime,p_h,ionic_strength,p_mg,temperature,decompose,reference,remark,Smiles
+metanetx.chemical:MNXM2,H2O,-155.7,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]O[H]
+metanetx.chemical:MNXM3,ATP,-2293.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]1([H])[C@@]([H])(O[H])[C@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)O[C@]1([H])C([H])([H])OP(=O)(O[H])OP(=O)(O[H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM4,Oxygen,16.4,7.0,0.25,14.0,298.15,0,Alberty (2006),,O=O
+metanetx.chemical:MNXM7,ADP,-1423.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]1([H])[C@@]([H])(O[H])[C@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)O[C@]1([H])C([H])([H])OP(=O)(O[H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM9,Orthophosphate,-1059.1,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM13,CO2,-386.0,7.0,0.25,14.0,298.15,0,Alberty (2006),,O=C=O
+metanetx.chemical:MNXM11,Diphosphate,-1942.8,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OP(=O)(O[H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM15,NH3,82.8,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]N([H])[H]
+metanetx.chemical:MNXM14,AMP,-554.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]1([H])[C@@]([H])(O[H])[C@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)O[C@]1([H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM23,Pyruvate,-350.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(=O)C([H])([H])[H]
+metanetx.chemical:MNXM95120,Iron,0.0,7.0,0.25,14.0,298.15,0,Element,,[Fe]
+metanetx.chemical:MNXM89557,L-Glutamate,-372.4,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])([H])[C@@]([H])(C(=O)O[H])N([H])[H]
+metanetx.chemical:MNXM20,2-Oxoglutarate,-633.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(=O)C([H])([H])C([H])([H])C(=O)O[H]
+metanetx.chemical:MNXM22,Hydrogen peroxide,-52.5,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OO[H]
+metanetx.chemical:MNXM41,D-Glucose,-427.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM26,Acetate,-247.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])[H]
+metanetx.chemical:MNXM1932,Manganese,0.0,7.0,0.25,14.0,298.15,0,Element,,[Mn]
+metanetx.chemical:MNXM46,Oxaloacetate,-715.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(=O)C([H])([H])C(=O)O[H]
+metanetx.chemical:MNXM29,Glycine,-176.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])N([H])[H]
+metanetx.chemical:MNXM32,L-Alanine,-85.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM25,Succinate,-530.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])([H])C(=O)O[H]
+metanetx.chemical:MNXM69,Glyoxylate,-428.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])=O
+metanetx.chemical:MNXM42,L-Aspartate,-452.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])[C@@]([H])(C(=O)O[H])N([H])[H]
+metanetx.chemical:MNXM39,Formate,-311.1,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OC([H])=O
+metanetx.chemical:MNXM58,Sulfate,-747.8,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OS(=O)(=O)O[H]
+metanetx.chemical:MNXM37,L-Glutamine,-120.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])C([H])([H])C(=O)N([H])[H]
+metanetx.chemical:MNXM53,L-Serine,-225.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])O[H]
+metanetx.chemical:MNXM56,Formaldehyde,-40.0,7.0,0.25,14.0,298.15,0,Maden (2000),The value in Alberty (2006) is probably wrong,[H]C([H])=O
+metanetx.chemical:MNXM73,Phosphoenolpyruvate,-1189.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(OP(=O)(O[H])O[H])=C([H])[H]
+metanetx.chemical:MNXM94,L-Tryptophan,374.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])c1c([H])n([H])c2c([H])c([H])c([H])c([H])c12
+metanetx.chemical:MNXM97,L-Phenylalanine,241.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])c1c([H])c([H])c([H])c([H])c1[H]
+metanetx.chemical:MNXM76,L-Tyrosine,77.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])c1c([H])c([H])c(O[H])c([H])c1[H]
+metanetx.chemical:MNXM75,Acetaldehyde,24.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]C(=O)C([H])([H])[H]
+metanetx.chemical:MNXM512144,D-Fructose 6-phosphate,-1316.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C1(O[H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM117,Urea,-39.8,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]N([H])C(=O)N([H])[H]
+metanetx.chemical:MNXM107,Nitrite,-33.0,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]ON=O
+metanetx.chemical:MNXM89,Sulfur,0.0,7.0,0.25,14.0,298.15,0,Element,,[H]S[H]
+metanetx.chemical:MNXM167,Sucrose,-668.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1(O[C@@]2([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]2([H])O[H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM160,D-Glucose 6-phosphate,-1319.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM66,sn-Glycerol 3-phosphate,-1077.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM105630,Sulfite,-488.0,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OS(=O)O[H]
+metanetx.chemical:MNXM1380,D-Fructose,-426.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C(=O)[C@@]([H])(O[H])[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM55,L-Cysteine,-53.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])S[H]
+metanetx.chemical:MNXM89588,D-Glucose 1-phosphate,-1312.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])OC([H])(OP(=O)(O[H])O[H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM77,Glycerone phosphate,-1095.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C(=O)C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM89612,Glycerol,-171.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM116,D-Ribose 5-phosphate,-1232.4,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM74,D-Glyceraldehyde 3-phosphate,-1088.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]([H])(C([H])=O)C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM91,5-Phospho-alpha-D-ribose 1-diphosphate,-2977.4,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]1([H])[C@@]([H])(OP(=O)(O[H])OP(=O)(O[H])O[H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM242,D-Ribose,-331.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM93,Fumarate,-523.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)/C([H])=C(\[H])C(=O)O[H]
+metanetx.chemical:MNXM140,L-Leucine,177.4,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])C([H])(C([H])([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM390,D-Galactose,-420.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])O[C@]([H])(O[H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM157,Methanol,-12.3,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OC([H])([H])[H]
+metanetx.chemical:MNXM168,Adenine,517.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]c1nc(N([H])[H])c2c(n1)nc([H])n2[H]
+metanetx.chemical:MNXM98,(S)-Malate,-682.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])[C@]([H])(O[H])C(=O)O[H]
+metanetx.chemical:MNXM147,L-Asparagine,-200.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])C(=O)N([H])[H]
+metanetx.chemical:MNXM131,Citrate,-966.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C(O[H])(C(=O)O[H])C([H])([H])C(=O)O[H]
+metanetx.chemical:MNXM182,D-Mannose,-421.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])OC([H])(O[H])[C@@]([H])(O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM222,Glycolate,-409.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])O[H]
+metanetx.chemical:MNXM154,Acetoacetate,-279.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C(=O)C([H])([H])[H]
+metanetx.chemical:MNXM90941,D-Xylose,-343.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]([H])(O[H])C([H])=O
+metanetx.chemical:MNXM199,L-Valine,89.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])(C([H])([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM460,Glycerone,-206.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C(=O)C([H])([H])O[H]
+metanetx.chemical:MNXM179,(S)-Lactate,-313.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(O[H])C([H])([H])[H]
+metanetx.chemical:MNXM142,L-Threonine,-162.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])[C@]([H])(O[H])C([H])([H])[H]
+metanetx.chemical:MNXM126,3-Phospho-D-glycerate,-1347.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM339,"D-Glucono-1,5-lactone",-496.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])OC(=O)[C@]([H])(O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM145,D-Ribulose 5-phosphate,-1232.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C(=O)[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM398,Acetone,84.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]C([H])([H])C(=O)C([H])([H])[H]
+metanetx.chemical:MNXM165,Maltose,-678.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[C@@]2([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]2([H])O[H])[C@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM291,Oxalate,-677.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(=O)O[H]
+metanetx.chemical:MNXM212,Adenosine,335.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])O[C@@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)[C@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM544,D-Arabinose,-334.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])OC([H])([H])[C@@]([H])(O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM255,Methylamine,203.8,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]N([H])C([H])([H])[H]
+metanetx.chemical:MNXM287,Adenylyl sulfate,-1056.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]1([H])[C@@]([H])(O[H])[C@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)O[C@]1([H])C([H])([H])OP(=O)(O[H])OS(=O)(=O)O[H]
+metanetx.chemical:MNXM280,Acetyl phosphate,-1100.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OP(=O)(O[H])OC(=O)C([H])([H])[H]
+metanetx.chemical:MNXM404,4-Methyl-2-oxopentanoate,-79.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(=O)C([H])([H])C([H])(C([H])([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM261,3-Phospho-D-glyceroyl phosphate,-2206.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]([H])(C(=O)OP(=O)(O[H])O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM10881,CO,-119.9,7.0,0.25,14.0,298.15,0,Alberty (2006),,[C-]#[O+]
+metanetx.chemical:MNXM362,Lactose,-671.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[C@]2([H])O[C@]([H])(C([H])([H])O[H])[C@]([H])(O[H])[C@]([H])(O[H])[C@@]2([H])O[H])[C@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM207,Nitrate,-109.5,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]O[N+](=O)[O-]
+metanetx.chemical:MNXM458,Butanoic acid,-68.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM59041,L-Sorbose,-423.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C(=O)[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM108,Hexadecanoic acid,1002.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM58018,Isomaltose,-691.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])O[C@@]2([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]2([H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM341,D-Gluconic acid,-680.9,7.0,0.25,14.0,298.15,1,Thauer (1977),,[H]OC(=O)[C@]([H])(O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM189,D-Glycerate,-458.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM213,Hypoxanthine,252.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]c1nc2c(nc([H])n2[H])c(=O)n1[H]
+metanetx.chemical:MNXM40579,D-Mannose 6-phosphate,-1315.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]([H])([C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H])[C@]([H])(O[H])C([H])=O
+metanetx.chemical:MNXM195,Hydrogen,99.1,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H][H]
+metanetx.chemical:MNXM89582,Hydrogen sulfide,51.5,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]S[H]
+metanetx.chemical:MNXM60,CO2(tot),-547.0,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OC(=O)O[H]
+metanetx.chemical:MNXM334,Inosine,79.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])O[C@@]([H])(n2c([H])nc3c(=O)n([H])c([H])nc32)[C@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM400,Creatine,107.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]N=C(N([H])[H])N(C([H])([H])[H])C([H])([H])C(=O)O[H]
+metanetx.chemical:MNXM653,Magnesium cation,-458.5,7.0,0.25,14.0,298.15,0,Alberty (2006),,[Mg+2]
+metanetx.chemical:MNXM41271,D-Ribulose,-328.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C(=O)[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM597,D-Xylulose,-338.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C(=O)[C@@]([H])(O[H])[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM89661,Isocitrate,-959.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])(C(=O)O[H])C([H])(O[H])C(=O)O[H]
+metanetx.chemical:MNXM417,"D-Fructose 1,6-bisphosphate",-2207.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1(C([H])([H])OP(=O)(O[H])O[H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM441,Urate,-194.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]n1c(=O)c2c(n([H])c1=O)n([H])c(=O)n2[H]
+metanetx.chemical:MNXM510,Xylitol,-295.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM615,Mannitol,-372.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]([H])(O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM231,L-Isoleucine,185.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])[C@@]([H])(C([H])([H])[H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM813,cis-Aconitate,-802.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)/C([H])=C(\C(=O)O[H])C([H])([H])C(=O)O[H]
+metanetx.chemical:MNXM377,Indole,509.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]c1c([H])c([H])c2c(c1[H])c([H])c([H])n2[H]
+metanetx.chemical:MNXM303,Ethanol,62.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM15883,D-Lyxose,-341.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])OC([H])([H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM927,L-Cystine,-177.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])SSC([H])([H])[C@@]([H])(C(=O)O[H])N([H])[H]
+metanetx.chemical:MNXM228,Nitric oxide,86.5,7.0,0.25,14.0,298.15,0,Alberty (2006),,[N]=O
+metanetx.chemical:MNXM796,Dimethylamine,321.8,7.0,0.25,14.0,298.15,0,Thauer (1977),,[H]N(C([H])([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM352,Trimethylamine,443.8,7.0,0.25,14.0,298.15,0,Thauer (1977),,[H]C([H])([H])N(C([H])([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM243,"3',5'-Cyclic AMP",-343.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@]1([H])[C@]2([H])OP(=O)(O[H])OC([H])([H])[C@@]2([H])O[C@@]1([H])n1c([H])nc2c(N([H])[H])nc([H])nc21
+metanetx.chemical:MNXM435,D-Glyceraldehyde,-195.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]([H])(O[H])C([H])=O
+metanetx.chemical:MNXM295,alpha-D-Ribose 1-phosphate,-1224.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])O[C@]([H])(OP(=O)(O[H])O[H])[C@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM275,2-Phospho-D-glycerate,-1340.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@]([H])(OP(=O)(O[H])O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM836,D-Mannose 1-phosphate,-1309.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])OC([H])(OP(=O)(O[H])O[H])[C@@]([H])(O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM90126,D-Mannitol 1-phosphate,-1267.4,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]([H])(O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM2179,2-Deoxy-D-ribose 5-phosphate,-1084.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]([H])(C([H])([H])C([H])=O)[C@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM724,Nitrogen,18.7,7.0,0.25,14.0,298.15,0,Alberty (2006),,N#N
+metanetx.chemical:MNXM1470,Creatinine,261.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]N=C1N([H])C(=O)C([H])([H])N1C([H])([H])[H]
+metanetx.chemical:MNXM469,D-Sorbitol,-375.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM8595,Ethyl acetate,-11.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]C([H])([H])C(=O)OC([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM579,Nitrous oxide,104.2,7.0,0.25,14.0,298.15,0,Alberty (2006),,N#[N+][O-]
+metanetx.chemical:MNXM379,O-Phospho-L-serine,-1119.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)[C@@]([H])(N([H])[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM872,3-Hydroxypropanoate,-315.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])([H])O[H]
+metanetx.chemical:MNXM198,"alpha,alpha-Trehalose",-686.4,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])O[C@]([H])(O[C@@]2([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]2([H])O[H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
+metanetx.chemical:MNXM393,Sorbitol 6-phosphate,-1266.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM1184,D-Arabinose 5-phosphate,-1235.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]([H])([C@]([H])(O[H])C([H])=O)[C@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM1735,D-Galactose 6-phosphate,-1312.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@]([H])(O[H])[C@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM894,4-Hydroxy-2-oxoglutarate,-812.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(=O)C([H])([H])C([H])(O[H])C(=O)O[H]
+metanetx.chemical:MNXM429,"D-Glucono-1,5-lactone 6-phosphate",-1382.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]O[C@@]1([H])[C@]([H])(O[H])[C@@]([H])(C([H])([H])OP(=O)(O[H])O[H])OC(=O)[C@]1([H])O[H]
+metanetx.chemical:MNXM254,Hydrogen cyanide,160.3,7.0,0.25,14.0,298.15,0,Wagman (1982),,[H]C#N
+metanetx.chemical:MNXM60,Carbonic acid,-546.8,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]OC(=O)O[H]
+metanetx.chemical:MNXM1239,Maleic acid,-513.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)/C([H])=C(/[H])C(=O)O[H]
+metanetx.chemical:MNXM1017,Butanal,196.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]C(=O)C([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM1191,Cyanate,-98.2,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]N=C=O
+metanetx.chemical:MNXM714,Methane,128.6,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]C([H])([H])[H]
+metanetx.chemical:MNXM3633,L-Iditol,-374.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]([H])(O[H])C([H])([H])O[H]
+metanetx.chemical:MNXM762,Thiocyanate,91.8,7.0,0.25,14.0,298.15,0,Wagman (1982),,[H]SC#N
+metanetx.chemical:MNXM3085,Propan-2-ol,140.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])(C([H])([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM4002,Glycylglycine,-194.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])N([H])C(=O)C([H])([H])N([H])[H]
+metanetx.chemical:MNXM2356,2-Methylmaleate,-441.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)/C([H])=C(\C(=O)O[H])C([H])([H])[H]
+metanetx.chemical:MNXM3262,Dichloromethane,15.4,7.0,0.25,14.0,298.15,0,Dolfing (1994),,[H]C([H])(Cl)Cl
+metanetx.chemical:MNXM3458,2-Chlorobenzoate,-75.7,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c([H])c1Cl
+metanetx.chemical:MNXM5462,2-Fluorobenzoate,-236.5,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c([H])c1F
+metanetx.chemical:MNXM6797,3-Fluorobenzoate,-231.0,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c(F)c1[H]
+metanetx.chemical:MNXM1459,4-Chlorobenzoate,-77.3,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c(Cl)c([H])c1[H]
+metanetx.chemical:MNXM6107,4-Fluorobenzoate,-226.0,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c(F)c([H])c1[H]
+metanetx.chemical:MNXM1421,(R)-2-Methylmalate,-602.7,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])[C@@](O[H])(C(=O)O[H])C([H])([H])[H]
+metanetx.chemical:MNXM90068,(S)-2-Hydroxyglutarate,-599.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])([H])[C@]([H])(O[H])C(=O)O[H]
+metanetx.chemical:MNXM541,3-Phosphonooxypyruvate,-1374.5,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C(=O)C([H])([H])OP(=O)(O[H])O[H]
+metanetx.chemical:MNXM3005,"D-Galactono-1,4-lactone",-497.9,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]([H])(O[H])[C@]1([H])OC(=O)[C@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM336,D-Galactose 1-phosphate,-1311.8,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1([H])O[C@]([H])(OP(=O)(O[H])O[H])[C@]([H])(O[H])[C@@]([H])(O[H])[C@@]1([H])O[H]
+metanetx.chemical:MNXM1428,Hydrazine,290.9,7.0,0.25,14.0,298.15,0,Thauer (1977),,[H]N([H])N([H])[H]
+metanetx.chemical:MNXM4374,4-Oxoglutaramate,-352.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC(=O)C([H])([H])C([H])([H])C(=O)C(=O)N([H])[H]
+metanetx.chemical:MNXM6396,Propane-1-ol,150.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM722772,2-Hydroxybutanoic acid,-221.9,7.0,0.25,14.0,298.15,1,Thauer (1977),,[H]OC(=O)[C@@]([H])(O[H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM3230,1-Butanol,235.6,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM977,Ethylene,244.4,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])=C([H])[H]
+metanetx.chemical:MNXM9763,"2,4-Dichlorobenzoate",-155.0,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c(Cl)c([H])c1Cl
+metanetx.chemical:MNXM3133,"1,2-Dichloroethane",90.0,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])(Cl)C([H])([H])Cl
+metanetx.chemical:MNXM3102,Tetrachloroethene,27.6,7.0,0.25,14.0,298.15,1,Dolfing (1994),,ClC(Cl)=C(Cl)Cl
+metanetx.chemical:MNXM1198,Trichloroethene,66.2,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C(Cl)=C(Cl)Cl
+metanetx.chemical:MNXM149903,"trans-1,2-Dichloroethene",113.5,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]/C(Cl)=C(/[H])Cl
+metanetx.chemical:MNXM3235,"cis-1,2-Dichloroethene",109.3,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]/C(Cl)=C(\[H])Cl
+metanetx.chemical:MNXM2007,Vinyl chloride,181.9,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])=C([H])Cl
+metanetx.chemical:MNXM3103,Carbon tetrachloride,-45.1,7.0,0.25,14.0,298.15,0,Dolfing (1994),,ClC(Cl)(Cl)Cl
+metanetx.chemical:MNXM4835,Sulfur dioxide,-300.7,7.0,0.25,14.0,298.15,0,Thauer (1977),,O=S=O
+metanetx.chemical:MNXM5083,Chloroform,-25.8,7.0,0.25,14.0,298.15,0,Dolfing (1994),,[H]C(Cl)(Cl)Cl
+metanetx.chemical:MNXM5399,"1,1-Dichloroethylene",113.7,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])=C(Cl)Cl
+metanetx.chemical:MNXM13820,"1,2,3-Trichloropropane",103.2,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])(Cl)C([H])(Cl)C([H])([H])Cl
+metanetx.chemical:MNXM31999,"1,1,1,2-Tetrachloroethane",3.7,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])(Cl)C(Cl)(Cl)Cl
+metanetx.chemical:MNXM111,Fe2+,-82.1,7.0,0.25,14.0,298.15,0,Thauer (1977),,[Fe+2]
+metanetx.chemical:MNXM196,Fe3+,-11.9,7.0,0.25,14.0,298.15,0,Thauer (1977),,[Fe+3]
+metanetx.chemical:MNXM9519,"1,1,1-Trichloroethane",53.2,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C(Cl)(Cl)Cl
+metanetx.chemical:MNXM9520,"1,1-Dichloroethane",94.3,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])(Cl)Cl
+metanetx.chemical:MNXM10926,Chloroethane,166.9,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])Cl
+metanetx.chemical:MNXM32136,"1,2-Dichloropropane",164.6,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])(Cl)C([H])([H])Cl
+metanetx.chemical:MNXM56309,Hexachloroethane,-49.6,7.0,0.25,14.0,298.15,1,Dolfing (1994),,ClC(Cl)(Cl)C(Cl)(Cl)Cl
+metanetx.chemical:MNXM73139,Pentachloroethane,-27.5,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C(Cl)(Cl)C(Cl)(Cl)Cl
+metanetx.chemical:MNXM32006,"1,1,2-Trichloroethane",44.6,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])(Cl)C([H])(Cl)Cl
+metanetx.chemical:MNXM4523,Monochlorobenzene,306.0,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c([H])c([H])c(Cl)c([H])c1[H]
+metanetx.chemical:MNXM13824,"1,2-Dichlorobenzene",247.3,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c([H])c([H])c(Cl)c(Cl)c1[H]
+metanetx.chemical:MNXM13841,"1,3-Dichlorobenzene",244.8,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c([H])c(Cl)c([H])c(Cl)c1[H]
+metanetx.chemical:MNXM4219,"1,4-Dichlorobenzene",241.3,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c([H])c(Cl)c([H])c([H])c1Cl
+metanetx.chemical:MNXM13819,"1,2,3-Trichlorobenzene",193.9,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c([H])c(Cl)c(Cl)c(Cl)c1[H]
+metanetx.chemical:MNXM4214,"1,2,4-Trichlorobenzene",182.7,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c([H])c(Cl)c(Cl)c([H])c1Cl
+metanetx.chemical:MNXM32237,"1,3,5-Trichlorobenzene",179.0,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c(Cl)c([H])c(Cl)c([H])c1Cl
+metanetx.chemical:MNXM9521,"1,2,3,4-Tetrachlorobenzene",137.3,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c([H])c(Cl)c(Cl)c(Cl)c1Cl
+metanetx.chemical:MNXM32049,"1,2,3,5-Tetrachlorobenzene",130.7,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c(Cl)c([H])c(Cl)c(Cl)c1Cl
+metanetx.chemical:MNXM13821,"1,2,4,5-Tetrachlorobenzene",135.0,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c(Cl)c(Cl)c([H])c(Cl)c1Cl
+metanetx.chemical:MNXM73137,Pentachlorobenzene,86.4,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]c1c(Cl)c(Cl)c(Cl)c(Cl)c1Cl
+metanetx.chemical:MNXM56307,Hexachlorobenzene,46.0,7.0,0.25,14.0,298.15,1,Dolfing (1992),,Clc1c(Cl)c(Cl)c(Cl)c(Cl)c1Cl
+metanetx.chemical:MNXM4328,3-Chlorobenzoate,-83.8,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c(Cl)c1[H]
+coco:COCOM00001,"2,3-Dichlorobenzoate",-148.3,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c(Cl)c1Cl
+metanetx.chemical:MNXM14140,"2,5-Dichlorobenzoate",-157.3,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c(Cl)c([H])c([H])c1Cl
+metanetx.chemical:MNXM34598,"2,6-Dichlorobenzoate",-141.2,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c(Cl)c([H])c([H])c([H])c1Cl
+metanetx.chemical:MNXM14472,"3,4-Dichlorobenzoate",-142.8,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c(Cl)c(Cl)c1[H]
+coco:COCOM00002,"3,5-Dichlorobenzoate",-152.1,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c(Cl)c([H])c(Cl)c1[H]
+coco:COCOM00003,"2,3,5-Trichlorobenzoate",-212.7,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c(Cl)c([H])c(Cl)c1Cl
+coco:COCOM00004,"3,4,5-Trichlorobenzoate",-200.9,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c(Cl)c(Cl)c(Cl)c1[H]
+metanetx.chemical:MNXM14207,2-Bromobenzoate,-47.3,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c([H])c1Br
+coco:COCOM00005,3-Bromobenzoate,-40.8,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c(Br)c1[H]
+metanetx.chemical:MNXM37357,4-Bromobenzoate,-34.1,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c(Br)c([H])c1[H]
+metanetx.chemical:MNXM14271,2-Iodobenzoate,15.7,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c([H])c1I
+coco:COCOM00006,3-Iodobenzoate,18.1,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c([H])c(I)c1[H]
+metanetx.chemical:MNXM37572,4-Iodobenzoate,20.9,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c([H])c(I)c([H])c1[H]
+coco:COCOM00007,2-Amino-5-chlorobenzoate,-12.6,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c(Cl)c([H])c([H])c1N([H])[H]
+coco:COCOM00008,2-Hydroxy-5-chlorobenzoate,-246.7,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c(Cl)c([H])c([H])c1O[H]
+coco:COCOM00009,2-Methyl-5-chlorobenzoate,6.6,7.0,0.25,14.0,298.15,1,Dolfing (1992),,[H]OC(=O)c1c([H])c(Cl)c([H])c([H])c1C([H])([H])[H]
+metanetx.chemical:MNXM5084,Chloromethane,69.5,7.0,0.25,14.0,298.15,0,Dolfing (1994),,[H]C([H])([H])Cl
+metanetx.chemical:MNXM11523,Ethane,227.0,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM32005,"1,1,2,2-Tetrachloroethane",-7.4,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C(Cl)(Cl)C([H])(Cl)Cl
+metanetx.chemical:MNXM78182,Propane,318.6,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM165478,1-Chloropropane,240.5,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])C([H])([H])Cl
+metanetx.chemical:MNXM165425,"1,3-Dichloropropane",164.1,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])(Cl)C([H])([H])C([H])([H])Cl
+metanetx.chemical:MNXM44968,Butane,407.2,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM165476,1-Chlorobutane,334.9,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])C([H])([H])C([H])([H])Cl
+coco:COCOM00010,2-Chlorobutane,321.1,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])C([H])(Cl)C([H])([H])[H]
+metanetx.chemical:MNXM73202,Pentane,498.2,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])[H]
+metanetx.chemical:MNXM504217,1-Chloropentane,418.6,7.0,0.25,14.0,298.15,1,Dolfing (1994),,[H]C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])Cl
+coco:COCOM00011,CH3NHp,444.0,7.0,0.25,14.0,298.15,0,Wagman (1982),,[H]C([H])([H])[N+]([O-])(C([H])([H])[H])C([H])([H])[H]
+metanetx.chemical:MNXM745,DMSO,,,,,,0,,Placeholder just to tell CC not to try to decompose this compound,[H]C([H])([H])[S+]([O-])C([H])([H])[H]
+metanetx.chemical:MNXM148,reduced thioredoxin,,,,,,0,,Placeholder just to tell CC not to try to decompose this compound,[H]C(=O)C1([H])N([H])C(=O)C([H])([H])N([H])C(=O)C([H])([H])N([H])C(=O)C([H])(N([H])[H])C([H])([H])SSC1([H])[H]
+metanetx.chemical:MNXM96993,oxidized thioredoxin,,,,,,0,,Placeholder just to tell CC not to try to decompose this compound,[H]SC([H])([H])C([H])(C(=O)N([H])C([H])([H])C(=O)N([H])C([H])([H])C(=O)N([H])C([H])(C([H])=O)C([H])([H])S[H])N([H])[H]

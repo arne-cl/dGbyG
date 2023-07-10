@@ -3,6 +3,7 @@ from functools import reduce
 from Bio.KEGG import REST
 import rdkit
 from rdkit import Chem
+from rdkit.Chem.MolStandardize import rdMolStandardize
 import numpy as np
 import pandas as pd
 
@@ -22,6 +23,9 @@ def parse_equation(equation:str, eq_sign=None) -> dict:
             if eq_sign in equation:
                 equation = equation.split(eq_sign)
                 break
+        
+    if not type(equation)==list:
+        return {equation:1}
     
     equation_dict = {}
     equation = [x.split(' + ') for x in equation]
@@ -86,29 +90,37 @@ def to_mol(cid, cid_type='auto') -> rdkit.Chem.rdchem.Mol:
         return Chem.AddHs(mol)
     
     def metanetx_id_to_mol(id:str):
-        matenetx_df = pd.read_csv('./data/MetaNetX/chem_prop.tsv', sep='\t', header=351, index_col=0)
-        smiles = (matenetx_df.loc[id, 'SMILES'])
+        metanetx_df = pd.read_csv('./data/MetaNetX/chem_prop.tsv', sep='\t', header=351, index_col=0)
+        smiles = (metanetx_df.loc[id, 'SMILES'])
+        mol = smiles_to_mol(smiles)
+        return Chem.AddHs(mol)
+    
+    def name_to_mol(name:str):
+        metanetx_df = pd.read_csv('./data/MetaNetX/chem_prop.tsv', sep='\t', header=351, index_col=1)
+        smiles = (metanetx_df.loc[name, 'SMILES'])
         mol = smiles_to_mol(smiles)
         return Chem.AddHs(mol)
 
     
     # the main body
+    cid_type = cid_type.lower()
     methods = {'inchi': inchi_to_mol,
                'smiles': smiles_to_mol,
                'kegg': kegg_entry_to_mol,
                'metanetx': metanetx_id_to_mol,
                'file': file_to_mol,
+               'name':name_to_mol,
                }
     if cid_type=='auto':
         pass
     else:
-        assert cid_type.lower() in can_be_recognized_cids, f'{cid_type} id cannot be recognized'
+        assert cid_type in can_be_recognized_cids, f'{cid_type} id cannot be recognized'
         _to_mol = methods.get(cid_type)
     try:
         mol = _to_mol(cid)
         mol = Chem.AddHs(mol)
     except:
-        mol = False
+        mol = None
     
     return mol
 
@@ -132,6 +144,11 @@ def equation_to_mol_dict(equation, cid_type):
     return equation_dict_to_mol_dict(equation_dict, cid_type)
 
 
+def normalize_mol(mol):
+    mol = rdMolStandardize.ChargeParent(mol)
+    return Chem.AddHs(mol)
+
+
 
 def atom_bag(mol:rdkit.Chem.rdchem.Mol):
     atom_bag = {}
@@ -145,11 +162,43 @@ def atom_bag(mol:rdkit.Chem.rdchem.Mol):
 
 
 
-def get_pKa(compound, temperature:float=default_T, source='auto') -> list:
+def get_pKa(compound, temperature:float=default_T, source='file') -> list:
     # compound: 
     # source: 
 
     def get_pka_from_chemaxon(compound, temperature):
+        # 
+        types = 'acidic,basic'
+        pKaLowerLimit = -20
+        pKaUpperLimit = 20
+        prefix = 'dynamic'
+        T = temperature
+        a = 8
+        b = 8
+        smiles = compound.Smiles
+
+        pka = os.popen(f"cxcalc pKa -m macro -t {types} -T {T} -P {prefix} -a {a} -b {b}\
+                       -i {pKaLowerLimit} -x {pKaUpperLimit} '{smiles}'").readlines()
+        
+        
+        pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
+        pka = dict(zip(pka[0].strip().split('\t'), pka[1].strip().split('\t')))
+        atoms_idx = 0
+        for k, v in pka.items():
+            if v!='' and k.startswith('apKa'):
+                atomIndex = pka['atoms'].split(',')[atoms_idx]
+                pka_copy['acidicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
+                atoms_idx += 1
+            elif v!='' and k.startswith('bpKa'):
+                atomIndex = pka['atoms'].split(',')[atoms_idx]
+                pka_copy['basicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
+                atoms_idx += 1
+        pka.close()
+        return pka_copy
+
+
+
+    def get_pka_from_chemaxon_rest(compound, temperature):
         # 
         chemaxon_pka_api = 'https://jchem-microservices.chemaxon.com/jws-calculations/rest-v1/calculator/calculate/pka'
         headers = {'accept': '*/*', 'Content-Type': 'application/json'}
@@ -173,15 +222,31 @@ def get_pKa(compound, temperature:float=default_T, source='auto') -> list:
         
     def get_pka_from_file(compound, temperature):
         # 
-        with open(pKa_json_file_path, 'r') as f:
-            f = json.loads(f.read())
+        smiles = compound.Smiles
+        pKa_df = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
+        if smiles not in pKa_df.index:
+            return None
 
-        return f.get(compound.Smiles).get(str(temperature))
+        pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
+        pka = pKa_df.loc[smiles, :]
+        atoms_idx = 0
+        for k, v in pka.items():
+            if pd.notna(v) and k.startswith('apKa'):
+                atomIndex = pka['atoms'].split(',')[atoms_idx]
+                pka_copy['acidicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
+                atoms_idx += 1
+            elif pd.notna(v) and k.startswith('bpKa'):
+                atomIndex = pka['atoms'].split(',')[atoms_idx]
+                pka_copy['basicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
+                atoms_idx += 1
+
+        return pka_copy
 
         
     # the main body of this function
-    methods = {'file': get_pka_from_file,
-               'chemaxon': get_pka_from_chemaxon,}
+    methods = {'chemaxon':get_pka_from_chemaxon,
+               'file': get_pka_from_file,
+               'chemaxon_rest': get_pka_from_chemaxon_rest,}
     if source=='auto':
         for source in methods:
             if pKa := methods[source](compound, temperature=temperature):
@@ -242,7 +307,7 @@ def ddGf_to_aqueous(pH: float, pMg: float, I: float, T: float, net_charge: float
     return (H_term + Mg_term - is_term)
 
 
-def ddGf_to_dissociation(pH: float, T: float, pKa):
+def ddGf_to_dissociation(pH: float, T: float, pKa:dict):
     # 
     RT = R * T
     def pseudoisomers_dG(chemaxon_pKa, pH):
@@ -279,8 +344,26 @@ def ddGf_to_dissociation(pH: float, T: float, pKa):
     return ddGf_standard_prime
 
 
+def ddGf_to_single(compound, condition):
+    # 
+    num_H = compound.atom_bag.get('H', 0)
+    num_Mg = compound.atom_bag.get('Mg', 0)
+    net_charge = compound.atom_bag.get('charge', 0)
+    pH = condition.get('pH', default_pH)
+    T = condition.get('T', default_T)
+    I = condition.get('I', default_I)
+    pMg = condition.get('pMg', default_pMg)
+    pKa = compound.pKa(T)
+    if pKa == None:
+        return None
+    
+    ddgf_to_single = (- ddGf_to_dissociation(pH, T, pKa) - ddGf_to_aqueous(pH, pMg, I, T, net_charge, num_H, num_Mg))
+
+    return ddgf_to_single
+
+
 def ddGf(compound, condition1, condition2):
-    num_H = compound.atom_bag['H']
+    num_H = compound.atom_bag.get('H', 0)
     num_Mg = compound.atom_bag.get('Mg', 0)
     net_charge = compound.atom_bag.get('charge', 0)
 
@@ -313,10 +396,10 @@ def equations_to_S(equations) -> pd.DataFrame:
     for cs in [parse_equation(x).keys() for x in equations]:
         for c in cs:
             comps.add(c) 
-    S = pd.DataFrame(index=range(len(equations)), columns=list(comps))
+    S = pd.DataFrame(index=list(comps), columns=range(len(equations)), dtype=float, data=0)
     for i in range(len(equations)):
         for comp, coeff in parse_equation(equations[i]).items():
-            S.loc[i,comp] = coeff
+            S.loc[comp,i] = coeff
 
     return S
 

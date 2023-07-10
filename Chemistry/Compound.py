@@ -1,25 +1,26 @@
 import numpy as np
+import rdkit
 from rdkit import Chem
 
 from dGbyG.utils.constants import *
-from dGbyG.utils.func import *
-from dGbyG.api.inference import predict
+from dGbyG.utils.ChemFunc import *
+
 
 
 class Compound(object):
-    def __init__(self, mol) -> None:
-        self.mol = mol
+    def __init__(self, mol:rdkit.Chem.rdchem.Mol) -> None:
+        self.mol = normalize_mol(mol)
         self._condition = default_condition
         
 
     def pKa(self, temperature=default_T):
-        return get_pKa(self, temperature, source='file')
+        return get_pKa(self, temperature)
 
 
 
     @property
     def Smiles(self):
-        return Chem.MolToSmiles(self.mol)
+        return Chem.MolToSmiles(self.mol, canonical=True)
     
     @property
     def InChI(self):
@@ -31,11 +32,20 @@ class Compound(object):
     
     @property
     def can_be_transformed(self):
+        if self.Smiles == '[H+]':
+            return True
         return True if self.pKa(default_T) else False
     
     
     def transform(self, condition1, condition2):
-        return ddGf(self, condition1, condition2) if self.can_be_transform else False
+        if self.Smiles == '[H+]':
+            return False
+        return ddGf(self, condition1, condition2) if self.can_be_transformed else None
+    
+    def ddGf(self):
+        if self.Smiles == '[H+]':
+            return False
+        return ddGf_to_single(self, self.condition) if self.can_be_transformed else None
     
 
     @property
