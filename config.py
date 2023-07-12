@@ -1,7 +1,7 @@
 inference_model_path = "/home/fanwc/dGbyG/network/best_model.pt"
 inference_model_state_dict_path = "/home/fanwc/dGbyG/network/best_model_state_dict.pt"
 
-tecrdb_path = "/home/fanwc/dGbyG/tecrdb_copy.csv"
+train_data_path = "/home/fanwc/dGbyG/data/TrainingData.csv"
 
 kegg_compound_data_path = "/home/fanwc/dGbyG/data/kegg_compound"
 kegg_additions_csv_path = "/home/fanwc/dGbyG/data/kegg_compound/kegg_additions.csv"

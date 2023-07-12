@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 from torch_geometric.loader import DataLoader
 
-from dGbyG.utils.Dataset import Train_Dataset
+from dGbyG.network.Dataset import Train_Dataset
 
 
 class Model(object):
@@ -110,7 +110,7 @@ class Model(object):
         Result_df['r'] = dataset.dGs.cpu().numpy().tolist()
         Loss = torch.empty(size=(0,epochs)).to(self.device)
         
-        print('Cross_validation. Start at:{0}'.format(datetime.now().strftime(r'%Y-%m-%d %H:%M:%S'))) 
+        print('Cross validation. Start at:{0}'.format(datetime.now().strftime(r'%Y-%m-%d %H:%M:%S'))) 
         print('train on:', self.device)
 
         S = dataset.S.to(self.device)
@@ -168,7 +168,7 @@ class Model(object):
         
         Loss = Loss.cpu().numpy()
 
-        print('Cross_validation. End at:', datetime.now().strftime(r'%Y-%m-%d %H:%M:%S'))
+        print('Cross validation. End at:', datetime.now().strftime(r'%Y-%m-%d %H:%M:%S'))
         return Loss, Result_df
 
 

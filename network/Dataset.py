@@ -6,7 +6,7 @@ from torch_geometric.data import Dataset, Data
 
 from dGbyG.Chemistry.Compound import Compound
 from dGbyG.utils.ChemFunc import *
-from dGbyG.utils.NNFunc import compound_to_graph_data
+from dGbyG.utils.NNFunc import mol_to_graph_data
 
 
 class Train_Dataset(Dataset):
@@ -34,8 +34,8 @@ class Train_Dataset(Dataset):
     
     def __getitem__(self, idx) -> Data:
         mol = to_mol(self.compounds[idx], cid_type='smiles')
-        compound = Compound(mol)
-        graph_data = compound_to_graph_data(compound)
+        mol = Compound(mol).mol
+        graph_data = mol_to_graph_data(mol)
         return graph_data
     
     @property

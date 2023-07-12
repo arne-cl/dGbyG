@@ -259,6 +259,27 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
 
 
 
+def calculate_pKa_batch_to_file(smiles_list:list) -> None:
+    # 
+    with open('comps.smi', 'r') as f:
+        f.writelines([x+'\n' for x in smiles_list])
+    a = os.popen(f"cxcalc pKa -t acidic,basic -a 8 -b 8 comps.smi")
+    with open('comps_pKa.tsv', 'w') as f:
+        f.write(a.read())
+    
+    p = pd.read_csv('comps_pKa.tsv', sep='\t').drop(columns='id')
+    p.index = smiles_list
+    p = p.reset_index()
+    p = p.rename(columns={'index':'smiles'})
+    op = pd.read_csv(chemaxon_pka_csv_path)
+    p = pd.concat([op,p]).drop_duplicates()
+    p.to_csv(chemaxon_pka_csv_path, index=False)
+    print(f'Results saved at {chemaxon_pka_csv_path}.')
+
+    return None
+
+
+
 
 
 def debye_hueckel(sqrt_ionic_strength: float, T_in_K: float) -> float:
@@ -344,6 +365,12 @@ def ddGf_to_dissociation(pH: float, T: float, pKa:dict):
     return ddGf_standard_prime
 
 
+def ddGf_to_elec(charge, e_potential):
+    # 
+    dg = FARADAY * charge * e_potential
+    return dg
+
+
 def ddGf_to_single(compound, condition):
     # 
     num_H = compound.atom_bag.get('H', 0)
@@ -373,12 +400,24 @@ def ddGf(compound, condition1, condition2):
         T = condition.get('T', default_T)
         I = condition.get('I', default_I)
         pMg = condition.get('pMg', default_pMg)
+        e_potential = condition.get('e_potential', default_e_potential)
         pKa = compound.pKa(T)
         if pKa == None:
             return None
 
-        ddGf_1_2.append(ddGf_to_dissociation(pH, T, pKa) + ddGf_to_aqueous(pH, pMg, I, T, net_charge, num_H, num_Mg))
+        ddGf_1_2.append(ddGf_to_dissociation(pH, T, pKa) + ddGf_to_aqueous(pH, pMg, I, T, net_charge, num_H, num_Mg) + ddGf_to_elec(net_charge, e_potential))
     
+    return ddGf_1_2[1] - ddGf_1_2[0]
+
+
+def ddGf_H_ion(compound, condition1, condition2):
+    assert compound.Smiles == '[H+]'
+    ddGf_1_2 = []
+    for condition in [dict(condition1), dict(condition2)]:
+        pH = condition.get('pH', default_pH)
+        T = condition.get('T', default_T)
+        e_potential = condition.get('e_potential', default_e_potential)
+        ddGf_1_2.append(R * T * np.log(10) * pH + ddGf_to_elec(1, e_potential))
     return ddGf_1_2[1] - ddGf_1_2[0]
 
 

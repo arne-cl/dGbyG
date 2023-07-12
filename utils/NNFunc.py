@@ -9,7 +9,7 @@ from dGbyG.Chemistry.Compound import Compound
 from dGbyG.Chemistry.Reaction import Reaction
 
 
-def compound_to_graph_data(compound:Compound) -> Data:
+def mol_to_graph_data(mol:rdkit.Chem.rdchem.Mol) -> Data:
     # return (x, bond_index, bond_attr)
         # atoms features: including such below(ordered).
         atomic_number, hybridization, aromaticity, chirality, charge, degree = [], [], [], [], [], []
@@ -22,8 +22,7 @@ def compound_to_graph_data(compound:Compound) -> Data:
         # bonds attributes: including such below(ordered)
         # bond_type + bond_begin_atom_features + bond_end_atom_features
         bond_attr = torch.empty(size=(0, 2*len(features)+1), dtype=torch.int64)
-        
-        mol = compound.mol
+
         for atom in mol.GetAtoms():
             atomic_number = atom.GetAtomicNum()
             hybridization = atom.GetHybridization().real

@@ -24,14 +24,7 @@ class Reaction(object):
             compound_dict = dict(map(lambda item: (Compound(item[0]), item[1]),
                                      self.mol_dict.items()))
             self.rxn = compound_dict if not False in compound_dict else False
-            
 
-    def pKa(self, temperature=default_T):
-        pKa = []
-        for compound in self.rxn:
-            pKa.append(compound.pKa(temperature))
-        return pKa
-    
     
     @property
     def rxnSmiles(self):
@@ -50,6 +43,14 @@ class Reaction(object):
     @property
     def equiationInChI(self):
         return build_equation(self.rxnInChI)
+    
+    
+    def pKa(self, temperature=default_T):
+        pKa = []
+        for compound in self.rxn:
+            pKa.append(compound.pKa(temperature))
+        return pKa
+    
     
     
     def is_balanced(self, ignore_H_ion=True, ignore_H2O=True):
@@ -117,13 +118,3 @@ class Reaction(object):
             return sum(ddGf_list)
 
     
-
-    @property
-    def standard_dGr_prime(self):
-        return self._standard_dGr_prime
-    
-    @standard_dGr_prime.setter
-    def standard_dGr_prime(self, conditions):
-        self._standard_dGr_prime = 0
-        for comp, coeff in self.rxn:
-            self._standard_dGr_prime = 3

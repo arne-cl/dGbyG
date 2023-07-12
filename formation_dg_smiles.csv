@@ -35,7 +35,7 @@ metanetx.chemical:MNXM75,Acetaldehyde,24.0,7.0,0.25,14.0,298.15,1,Alberty (2006)
 metanetx.chemical:MNXM512144,D-Fructose 6-phosphate,-1316.0,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])C1(O[H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
 metanetx.chemical:MNXM117,Urea,-39.8,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]N([H])C(=O)N([H])[H]
 metanetx.chemical:MNXM107,Nitrite,-33.0,7.0,0.25,14.0,298.15,0,Alberty (2006),,[H]ON=O
-metanetx.chemical:MNXM89,Sulfur,0.0,7.0,0.25,14.0,298.15,0,Element,,[H]S[H]
+metanetx.chemical:MNXM89,Sulfur,0.0,7.0,0.25,14.0,298.15,0,Element,,[S]
 metanetx.chemical:MNXM167,Sucrose,-668.3,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]1(O[C@@]2([H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]2([H])O[H])O[C@]([H])(C([H])([H])O[H])[C@@]([H])(O[H])[C@]1([H])O[H]
 metanetx.chemical:MNXM160,D-Glucose 6-phosphate,-1319.1,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC1([H])O[C@]([H])(C([H])([H])OP(=O)(O[H])O[H])[C@@]([H])(O[H])[C@]([H])(O[H])[C@@]1([H])O[H]
 metanetx.chemical:MNXM66,sn-Glycerol 3-phosphate,-1077.2,7.0,0.25,14.0,298.15,1,Alberty (2006),,[H]OC([H])([H])[C@@]([H])(O[H])C([H])([H])OP(=O)(O[H])O[H]
