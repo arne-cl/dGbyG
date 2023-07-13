@@ -10,7 +10,7 @@ from dGbyG.Chemistry.Compound import Compound
 class Reaction(object):
     def __init__(self, reaction, rxn_type='str', cid_type='smiles') -> None:
         if cid_type == 'compound':
-            self.rxn = compound_dict if not False in compound_dict else False
+            self.rxn = reaction if not None in reaction else None
         else:
             if rxn_type == 'str':
                 self.reaction = reaction
@@ -68,7 +68,7 @@ class Reaction(object):
         if len(set(diff_atom.values()))==1 and 0 in diff_atom.values():
             return True
         else:
-            print(diff_atom)
+            #print(diff_atom)
             return False
         
     def balance(self, with_H_ion=True, with_H2O=True):

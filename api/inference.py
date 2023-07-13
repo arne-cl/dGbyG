@@ -31,7 +31,7 @@ def predict_standard_dGf_prime(mol:rdkit.Chem.rdchem.Mol) -> np.ndarray:
     with torch.no_grad():
         cids_energy = network(data).view(1)
 
-    return cids_energy.cpu().numpy()
+    return cids_energy.cpu().numpy()[0]
 
     
     
@@ -48,7 +48,9 @@ class Compound(Compound):
     
     @property
     def transformed_standard_dGf_prime(self) -> np.ndarray:
-        transformed_standard_dg = self.standard_dGf_prime + self.transform(default_condition, self.condition)
+        ddGf = self.transform(default_condition, self.condition)
+        ddGf = ddGf if ddGf else False
+        transformed_standard_dg = self.standard_dGf_prime + ddGf
         return transformed_standard_dg
     
 
@@ -58,12 +60,12 @@ class Reaction(Reaction):
     def __init__(self, reaction, rxn_type='str', cid_type='smiles') -> None:
         
         if cid_type == 'compound':
-            self.rxn = compound_dict if not False in compound_dict else False
+            self.rxn = reaction if not None in reaction else None
         else:
             super().__init__(reaction, rxn_type, cid_type)
             compound_dict = dict(map(lambda item: (Compound(item[0]), item[1]),
                                      self.mol_dict.items()))
-            self.rxn = compound_dict if not False in compound_dict else False
+            self.rxn = compound_dict if not None in compound_dict else None
 
     @property
     def standard_dGr_prime(self) -> np.ndarray:

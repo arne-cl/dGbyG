@@ -135,7 +135,7 @@ def equation_dict_to_mol_dict(equation_dict:dict, cid_type):
     mol_dict = dict(map(lambda item: (to_mol(item[0][0], item[1]), item[0][1]),
                         zip(equation_dict.items(), cid_Types)))
     
-    return mol_dict if not False in mol_dict else False
+    return mol_dict if not None in mol_dict else None
 
 
 def equation_to_mol_dict(equation, cid_type):
@@ -225,7 +225,8 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
         smiles = compound.Smiles
         pKa_df = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
         if smiles not in pKa_df.index:
-            return None
+            calculate_pKa_batch_to_file([smiles])
+            pKa_df = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
 
         pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
         pka = pKa_df.loc[smiles, :]
@@ -261,7 +262,7 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
 
 def calculate_pKa_batch_to_file(smiles_list:list) -> None:
     # 
-    with open('comps.smi', 'r') as f:
+    with open('comps.smi', 'w') as f:
         f.writelines([x+'\n' for x in smiles_list])
     a = os.popen(f"cxcalc pKa -t acidic,basic -a 8 -b 8 comps.smi")
     with open('comps_pKa.tsv', 'w') as f:
