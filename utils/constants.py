@@ -15,5 +15,5 @@ default_condition = {'T':default_T,
 standard_formation_dg_Mg = -455.3
 standard_formation_dh_Mg = -467.0
 
-default_u_concentration = 1e-9
-default_l_concentration = 1e-1
+default_u_concentration = 1e-1
+default_l_concentration = 1e-9
