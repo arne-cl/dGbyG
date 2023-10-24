@@ -1,3 +1,4 @@
+from typing import Dict, List
 import numpy as np
 from rdkit import Chem
 
@@ -8,41 +9,57 @@ from dGbyG.Chemistry.Compound import Compound
 
 
 class Reaction(object):
-    def __init__(self, reaction, rxn_type='str', cid_type='smiles') -> None:
-        if cid_type == 'compound':
-            self.rxn = reaction if not None in reaction else None
+    def __init__(self, reaction, cid_type='smiles') -> None:
+        self.input_reaction = reaction
+        if isinstance(reaction, str):
+            self.reaction_dict = parse_equation(reaction)
+        elif isinstance(reaction, dict):
+            self.reaction_dict = reaction
         else:
-            if rxn_type == 'str':
-                self.reaction = reaction
-                self.equation_dict = parse_equation(reaction)
-                self.mol_dict = equation_to_mol_dict(reaction, cid_type)
-            elif rxn_type == 'dict' and cid_type == 'mol':
-                self.mol_dict = reaction
+            raise ValueError('Cannot accept type{0}'.format(type(reaction)))
+        
+        self.reaction = {}
+        for comp, coeff in self.reaction_dict.items():
+            if isinstance(comp, Compound):
+                pass
+            elif isinstance(comp, Chem.rdchem.Mol):
+                comp = Compound(comp)
+            elif isinstance(comp, str):
+                mol = to_mol(comp, cid_type)
+                comp = Compound(mol)
             else:
-                self.mol_dict = equation_dict_to_mol_dict(reaction, cid_type)
+                raise ValueError('Cannot accept type{0}'.format(type(comp)))
+            self.reaction.update({comp:float(coeff)})
 
-            compound_dict = dict(map(lambda item: (Compound(item[0]), item[1]),
-                                     self.mol_dict.items()))
-            self.rxn = compound_dict if not False in compound_dict else False
+        self.rxn = self.balance(self.reaction, with_H2O=True, with_H_ion=True)
 
     
     @property
-    def rxnSmiles(self):
+    def rxnSmiles(self) -> str:
         rxn_dict_smiles = map(lambda item: (item[0].Smiles, item[1]), self.rxn.items())
         return dict(rxn_dict_smiles)
     
     @property
-    def rxnInChI(self):
+    def rxnInChI(self) -> str:
         rxn_dict_inchi = map(lambda item: (item[0].InChI, item[1]), self.rxn.items())
         return dict(rxn_dict_inchi)
     
     @property
-    def equationSmiles(self):
+    def equationSmiles(self) -> str:
         return build_equation(self.rxnSmiles)
     
     @property
-    def equiationInChI(self):
+    def equiationInChI(self) -> str:
         return build_equation(self.rxnInChI)
+    
+    @property
+    def substrates(self) -> Dict[Compound, float]:
+        return dict([(c,v) for c,v in self.rxn.items() if v<0])
+    
+    @property
+    def products(self) -> Dict[Compound, float]:
+        return dict([(c,v) for c,v in self.rxn.items() if v>0])
+
     
     
     def pKa(self, temperature=default_T):
@@ -53,11 +70,14 @@ class Reaction(object):
     
     
     
-    def is_balanced(self, ignore_H_ion=True, ignore_H2O=True):
+    def is_balanced(self, ignore_H_ion=False, ignore_H2O=False) -> bool:
         diff_atom = {}
         for comp, coeff in self.rxn.items():
+            if comp.atom_bag==None:
+                return None
             for atom, num in comp.atom_bag.items():
                 diff_atom[atom] = diff_atom.get(atom, 0) + coeff * num
+
         if ignore_H_ion:
             diff_atom['H'] = diff_atom.get('H', 0) - diff_atom.get('charge', 0)
             diff_atom['charge'] = 0
@@ -65,42 +85,49 @@ class Reaction(object):
             diff_atom['H'] = diff_atom.get('H', 0) - 2 * diff_atom.get('O', 0)
             diff_atom['O'] = 0
             
-        if len(set(diff_atom.values()))==1 and 0 in diff_atom.values():
-            return True
-        else:
-            #print(diff_atom)
-            return False
+        unbalanced_atom = {}
+        for atom, num in diff_atom.items():
+            if num!=0:
+                unbalanced_atom[atom] = num
+
+        return False if unbalanced_atom else True
+    
+    
         
-    def balance(self, with_H_ion=True, with_H2O=True):
+    def balance(self, reaction: Dict[Compound, float], with_H2O=True, with_H_ion=True) -> Dict[Compound, float]:
+        reaction = reaction.copy()
         diff_atom = {}
-        for comp, coeff in self.rxn.items():
+        for comp, coeff in reaction.items():
             for atom, num in comp.atom_bag.items():
                 diff_atom[atom] = diff_atom.get(atom, 0) + coeff * num
         num_H_ion = diff_atom.get('charge')
         num_H2O = diff_atom.get('O')
 
+        compounds_smiles = [comp.Smiles for comp in reaction.keys()]
         if with_H_ion and num_H_ion:
-            if '[H+]' not in self.rxnSmiles.keys():
-                self.rxn[Compound(to_mol('[H+]', cid_type='smiles'))] = -num_H_ion
+            if '[H+]' not in compounds_smiles:
+                reaction[Compound(to_mol('[H+]', cid_type='smiles'))] = -num_H_ion
             else:
-                for compound in self.rxn.keys():
-                    if compound.Smiles == '[H+]':
-                        self.rxn[compound] = self.rxn[compound] - num_H_ion
+                for comp in reaction.keys():
+                    if comp.Smiles == '[H+]':
+                        reaction[comp] = reaction[comp] - num_H_ion
                         break
 
         if with_H2O and num_H2O:
-            if '[H]O[H]' not in self.rxnSmiles.keys():
-                self.rxn[Compound(to_mol('[H]O[H]', cid_type='smiles'))] = -num_H2O
+            if '[H]O[H]' not in compounds_smiles:
+                reaction[Compound(to_mol('[H]O[H]', cid_type='smiles'))] = -num_H2O
             else:
-                for compound in self.rxn.keys():
-                    if compound.Smiles == '[H]O[H]':
-                        self.rxn[compound] = self.rxn[compound] - num_H2O
+                for comp in reaction.keys():
+                    if comp.Smiles == '[H]O[H]':
+                        reaction[comp] = reaction[comp] - num_H2O
                         break
+
+        return reaction
 
 
     
     @property
-    def can_be_transformed(self):
+    def can_be_transformed(self) -> bool:
         for x in self.rxn.keys():
             if not x.can_be_transformed:
                 return False

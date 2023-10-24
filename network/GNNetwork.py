@@ -1,7 +1,12 @@
+from typing import Union
 import torch
+from torch import Tensor
 import torch.nn as nn
+import torch.nn.functional as F
 
+from torch_geometric.data import Data
 from torch_geometric.nn import MessagePassing, global_add_pool
+from torch_geometric.typing import Adj, SparseTensor
 from torch_geometric.utils import add_self_loops
 
 from rdkit.Chem.rdchem import HybridizationType, ChiralType, BondType, BondStereo
@@ -23,23 +28,94 @@ Num_bond_atom_j = Num_atomic_number # taget atom
 
 
 class MP_layer(MessagePassing):
-    def __init__(self, node_emb_dim:int, edge_emb_dim:int):
+    def __init__(self, emb_dim:int):
         super().__init__()
-        self.edge_emb_dim = edge_emb_dim
-        self.node_emb_dim = node_emb_dim
         
-
-    def forward(self, x_emb, edge_index, edge_emb):
+    def forward(self, x_emb, edge_index, edge_emb) -> Tensor:
         # 
-        x_emb = self.propagate(edge_index, x = x_emb, edge_attr = edge_emb)
-        return x_emb
+        x_emb = x_emb + self.propagate(edge_index, x = x_emb, edge_attr = edge_emb)
+        #edge_emb = edge_emb + self.edge_updater(edge_index, x = x_emb, edge_attr=edge_emb)
+        return x_emb#, edge_emb
 
-    def message(self, x_j, edge_attr):
+    def message(self, x_j: Tensor, edge_attr: Tensor) -> Tensor:
         # Hadamard product is better than plus
         return x_j * edge_attr
+    
+    def edge_update(self, x_i, x_j, edge_attr) -> Tensor:
+        # 
+        return edge_attr
+
+
 
 
 class MP_network(nn.Module):
+    def __init__(self, atom_dim, bond_dim, emb_dim:int=300, num_layer:int=2):
+        super().__init__()
+        self.emb_dim = emb_dim
+        self.num_layer = num_layer
+
+        '''# node embedding block'''
+        self.atom_lin = nn.Linear(atom_dim, emb_dim)
+
+        '''# edge embedding block'''
+        self.bond_lin = nn.Linear(bond_dim, emb_dim)
+
+        '''# List of MLPs'''
+        self.MP_layers = nn.ModuleList([MP_layer(emb_dim=emb_dim) for _ in range(num_layer)])
+
+
+        '''# energy linear'''
+        self.energy_lin = nn.Sequential(
+            nn.ReLU(),
+            nn.Linear(self.emb_dim, self.emb_dim),
+            nn.ReLU(),
+            nn.Linear(self.emb_dim, self.emb_dim//2),
+            nn.ReLU(),
+            nn.Linear(self.emb_dim//2, 1, bias=False)
+        )
+
+        #
+        self.pool = global_add_pool
+
+        # init
+        self.weight_init()
+
+
+    def weight_init(self):
+        for layer in self.modules():
+            if isinstance(layer, nn.Linear):
+                nn.init.kaiming_uniform_(layer.weight.data, nonlinearity='relu')
+
+
+    def forward(self, data: Data, mode='molecule mode') -> Tensor:
+        # data.x.shape = [N, atom_num, atom_dim], data.edge_emb.shape = [N, bond_num, edge_dim]
+
+        '''# Step 1: embedding atoms and bonds'''
+        # Step 1.1: embedding atoms to node_emb
+        node_emb = self.atom_lin(data.x) # node_emb.shape = [N, atom_num, hidden_dim]
+
+        # Step 1.2: embed the bond_attr to edge_emb
+        edge_emb = self.bond_lin(data.edge_attr) # edge_emb.shape = [N, bond_num, hidden_dim]
+        
+        '''# Step 2: graph convolution'''
+        for MP_layer in self.MP_layers:
+            node_emb = MP_layer(node_emb, data.edge_index, edge_emb)
+
+        '''# Step 3: transform x to a single value(energy value)'''
+        node_energy = self.energy_lin(node_emb) # node_energy.shape = [N, atom_num, 1]
+
+        '''# Step 4: add all the energies of nodes '''
+        if mode=='molecule mode':
+            dg = self.pool(node_energy, data.batch) # dg.shape = [N, 1, 1]
+            return dg
+        if mode=='atom mode':
+            return node_energy
+
+
+
+
+
+class Old_MP_network(nn.Module):
     def __init__(self, emb_dim:int=600, num_layer:int=2):
         super().__init__()
         self.node_emb_dim = emb_dim

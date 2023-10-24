@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from tqdm import tqdm, trange
+from random import shuffle
 
 import torch
 import torch.nn as nn
@@ -48,7 +49,7 @@ class Model(object):
 
         for data in DataLoader(dataset, batch_size=len(dataset)):
             data.to(self.device)
-
+            
         Result_df = pd.DataFrame([])
         Result_df['r'] = dataset.dGs.cpu().numpy().tolist()
 
@@ -107,7 +108,7 @@ class Model(object):
         # This funtion is used for cross_validation
         total_idx = list(range(dataset.S.shape[1]))
         Result_df = pd.DataFrame([], index = total_idx)
-        Result_df['r'] = dataset.dGs.cpu().numpy().tolist()
+        Result_df['r'] = dataset.dGs.cpu().numpy().astype(np.float32)
         Loss = torch.empty(size=(0,epochs)).to(self.device)
         
         print('Cross validation. Start at:{0}'.format(datetime.now().strftime(r'%Y-%m-%d %H:%M:%S'))) 
@@ -130,6 +131,7 @@ class Model(object):
 
         elif type(mode)==int:
             fold_num = mode
+            shuffle(total_idx)
             print('Mode: K-fold validation. K =', fold_num)
             if n_start==None:
                 n_start = 0
@@ -169,7 +171,7 @@ class Model(object):
         Loss = Loss.cpu().numpy()
 
         print('Cross validation. End at:', datetime.now().strftime(r'%Y-%m-%d %H:%M:%S'))
-        return Loss, Result_df
+        return Loss, Result_df.astype(np.float32)
 
 
 

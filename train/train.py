@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 
+from dGbyG.utils.custom_tools import rapid_process_result, rapid_linear_reg
 from dGbyG.network.Dataset import Train_Dataset
 from dGbyG.network.GNNetwork import MP_network
 from dGbyG.train.trainer import Model
@@ -26,5 +27,5 @@ model.network = network
 
 Loss, Result_df = model.cross_validation(TrainSet, mode=10, epochs=9000, lr=1e-4, weight_decay=1e-6)
 
-loss_history, Result_df, n = model.train(TrainSet, epochs=9000, lr=1e-4, weight_decay=1e-6)
-torch.save(network, inference_model_path)
+r, final_p, final_ae = rapid_process_result(Loss, Result_df, path=False, plot=False)
+

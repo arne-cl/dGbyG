@@ -1,5 +1,5 @@
 inference_model_path = "/home/fanwc/dGbyG/network/best_model.pt"
-inference_model_state_dict_path = "/home/fanwc/dGbyG/network/best_model_state_dict.pt"
+inference_model_state_dict_dir = "/home/fanwc/dGbyG/network/best_model_params"
 
 train_data_path = "/home/fanwc/dGbyG/data/TrainingData.csv"
 
@@ -8,4 +8,4 @@ kegg_additions_csv_path = "/home/fanwc/dGbyG/data/kegg_compound/kegg_additions.c
 chemaxon_pka_csv_path = "/home/fanwc/dGbyG/data/chemaxon_pKa.csv"
 pKa_json_file_path = "/home/fanwc/dGbyG/data/pKa.json"
 
-can_be_recognized_cids = ['kegg', 'metanetx', 'inchi', 'smiles', 'file', 'name']
+package_path = "/home/fanwc/dGbyG"

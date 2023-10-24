@@ -1,16 +1,21 @@
 import os, re, json, requests
+import numpy as np
+import pandas as pd
 from functools import reduce
 from Bio.KEGG import REST
+from typing import Tuple, List
+from copy import deepcopy
+
 import rdkit
 from rdkit import Chem
 from rdkit.Chem.MolStandardize import rdMolStandardize
-import numpy as np
-import pandas as pd
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.*')
 
 from dGbyG.config import *
 from dGbyG.utils.constants import *
 
-
+cache = {}
 
 
 def parse_equation(equation:str, eq_sign=None) -> dict:
@@ -61,8 +66,10 @@ def build_equation(equation_dict:dict, eq_sign='=') -> str:
 
 
 
-def to_mol(cid, cid_type='auto') -> rdkit.Chem.rdchem.Mol:
-    #
+def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
+    # 
+    if not isinstance(cid, str):
+        raise TypeError('cid must be String type, but got {0}'.format(type(cid)))
     
     def inchi_to_mol(inchi:str):
         mol = Chem.MolFromInchi(inchi, removeHs=False)
@@ -80,8 +87,8 @@ def to_mol(cid, cid_type='auto') -> rdkit.Chem.rdchem.Mol:
         path = os.path.join(kegg_compound_data_path, entry+'.mol')
         if os.path.exists(path):
             mol = file_to_mol(path)
-        elif download_kegg_compound(entry):
-            mol = file_to_mol(path)
+        #elif download_kegg_compound(entry):
+        #    mol = file_to_mol(path)
         else:
             kegg_additions_df = pd.read_csv(kegg_additions_csv_path, index_col=0)
             if entry in kegg_additions_df.index:
@@ -90,13 +97,44 @@ def to_mol(cid, cid_type='auto') -> rdkit.Chem.rdchem.Mol:
         return Chem.AddHs(mol)
     
     def metanetx_id_to_mol(id:str):
-        metanetx_df = pd.read_csv('./data/MetaNetX/chem_prop.tsv', sep='\t', header=351, index_col=0)
+        if 'metanetx' not in cache:
+            cache['metanetx'] = pd.read_csv(os.path.join(package_path, 'data/MetaNetX/chem_prop.tsv'), sep='\t', header=351, index_col=0)
+        metanetx_df = cache['metanetx']
         smiles = (metanetx_df.loc[id, 'SMILES'])
         mol = smiles_to_mol(smiles)
         return Chem.AddHs(mol)
     
+    def hmdb_id_to_mol(id:str):
+        if 'hmdb' not in cache:
+            cache['hmdb'] = pd.read_csv(os.path.join(package_path, 'data/HMDB/structures.csv'), index_col=0, dtype={33: object})
+        hmdb_df = cache['hmdb']
+        if len(id.replace('HMDB', '')) < 7:
+            id = 'HMDB' + '0'*(7-len(id.replace('HMDB', ''))) + id.replace('HMDB', '')
+        smiles = hmdb_df.loc[id, 'SMILES']
+        mol = smiles_to_mol(smiles)
+        return Chem.AddHs(mol)
+    
+    def inchi_key_to_mol(inchi_key:str):
+        if 'hmdb' not in cache:
+            cache['hmdb'] = pd.read_csv(os.path.join(package_path, 'data/HMDB/structures.csv'), index_col=0, dtype={33: object})
+        if 'metanetx' not in cache:
+            cache['metanetx'] = pd.read_csv(os.path.join(package_path, 'data/MetaNetX/chem_prop.tsv'), sep='\t', header=351, index_col=0)
+        
+        if smiles := cache['hmdb'].loc[cache['hmdb'].INCHI_KEY == inchi_key, 'SMILES'].to_list():
+            return smiles_to_mol(smiles[0])
+        elif smiles := cache['metanetx'].loc[cache['metanetx'].InChIKey == 'InChIKey='+inchi_key, 'SMILES'].to_list():
+            return smiles_to_mol(smiles[0])
+        elif smiles := cache['hmdb'].loc[cache['hmdb'].INCHI_KEY.apply(lambda x:x[:-2]) == inchi_key[:-2], 'SMILES'].to_list():
+            return smiles_to_mol(smiles[0])
+        elif smiles := cache['metanetx'].loc[cache['metanetx'].InChIKey.apply(lambda x:x[:-2] if pd.notna(x) else x) == 'InChIKey='+inchi_key[:-2], 'SMILES'].to_list():
+            return smiles_to_mol(smiles[0])
+        else:
+            return None
+    
     def name_to_mol(name:str):
-        metanetx_df = pd.read_csv('./data/MetaNetX/chem_prop.tsv', sep='\t', header=351, index_col=1)
+        if 'name' not in cache:
+            cache['name'] = pd.read_csv(os.path.join(package_path, 'data/MetaNetX/chem_prop.tsv'), sep='\t', header=351, index_col=1)
+        metanetx_df = cache['name']
         smiles = (metanetx_df.loc[name, 'SMILES'])
         mol = smiles_to_mol(smiles)
         return Chem.AddHs(mol)
@@ -108,14 +146,15 @@ def to_mol(cid, cid_type='auto') -> rdkit.Chem.rdchem.Mol:
                'smiles': smiles_to_mol,
                'kegg': kegg_entry_to_mol,
                'metanetx': metanetx_id_to_mol,
+               'hmdb': hmdb_id_to_mol,
                'file': file_to_mol,
+               'inchi-key': inchi_key_to_mol,
                'name':name_to_mol,
                }
-    if cid_type=='auto':
-        pass
-    else:
-        assert cid_type in can_be_recognized_cids, f'{cid_type} id cannot be recognized'
-        _to_mol = methods.get(cid_type)
+
+    
+    assert cid_type in methods.keys(), f'{cid_type} id cannot be recognized'
+    _to_mol = methods.get(cid_type)
     try:
         mol = _to_mol(cid)
         mol = Chem.AddHs(mol)
@@ -144,7 +183,10 @@ def equation_to_mol_dict(equation, cid_type):
     return equation_dict_to_mol_dict(equation_dict, cid_type)
 
 
-def normalize_mol(mol):
+def normalize_mol(mol:rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
+    #mol = rdMolStandardize.Uncharger().uncharge(mol)
+    #te = rdMolStandardize.TautomerEnumerator() # idem
+    #mol = te.Canonicalize(mol)
     mol = rdMolStandardize.ChargeParent(mol)
     return Chem.AddHs(mol)
 
@@ -162,7 +204,7 @@ def atom_bag(mol:rdkit.Chem.rdchem.Mol):
 
 
 
-def get_pKa(compound, temperature:float=default_T, source='file') -> list:
+def get_pKa(compound, temperature:float=default_T, source='chemaxon_file') -> list:
     # compound: 
     # source: 
 
@@ -180,7 +222,6 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
         pka = os.popen(f"cxcalc pKa -m macro -t {types} -T {T} -P {prefix} -a {a} -b {b}\
                        -i {pKaLowerLimit} -x {pKaUpperLimit} '{smiles}'").readlines()
         
-        
         pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
         pka = dict(zip(pka[0].strip().split('\t'), pka[1].strip().split('\t')))
         atoms_idx = 0
@@ -193,7 +234,7 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
                 atomIndex = pka['atoms'].split(',')[atoms_idx]
                 pka_copy['basicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
                 atoms_idx += 1
-        pka.close()
+        
         return pka_copy
 
 
@@ -223,10 +264,15 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
     def get_pka_from_file(compound, temperature):
         # 
         smiles = compound.Smiles
-        pKa_df = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
+        if 'chemaxon_file' not in cache.keys():
+            cache['chemaxon_file'] = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
+        pKa_df = cache['chemaxon_file']
+
         if smiles not in pKa_df.index:
+            print(smiles, 'pka not in file')
             calculate_pKa_batch_to_file([smiles])
             pKa_df = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
+            cache['chemaxon_file'] = pKa_df
 
         pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
         pka = pKa_df.loc[smiles, :]
@@ -242,11 +288,10 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
                 atoms_idx += 1
 
         return pka_copy
-
         
     # the main body of this function
     methods = {'chemaxon':get_pka_from_chemaxon,
-               'file': get_pka_from_file,
+               'chemaxon_file': get_pka_from_file,
                'chemaxon_rest': get_pka_from_chemaxon_rest,}
     if source=='auto':
         for source in methods:
@@ -260,20 +305,32 @@ def get_pKa(compound, temperature:float=default_T, source='file') -> list:
 
 
 
-def calculate_pKa_batch_to_file(smiles_list:list) -> None:
+def calculate_pKa_batch_to_file(smiles_list:list, temperature=default_T) -> None:
     # 
     with open('comps.smi', 'w') as f:
         f.writelines([x+'\n' for x in smiles_list])
-    a = os.popen(f"cxcalc pKa -t acidic,basic -a 8 -b 8 comps.smi")
+
+    types = 'acidic,basic'
+    pKaLowerLimit = -20
+    pKaUpperLimit = 20
+    prefix = 'dynamic'
+    T = temperature
+    a = 8
+    b = 8
+
+    pka = os.popen(f"cxcalc pKa -m macro -t {types} -T {T} -P {prefix} -a {a} -b {b}\
+                       -i {pKaLowerLimit} -x {pKaUpperLimit} comps.smi")
+    
+    #a = os.popen(f"cxcalc pKa -t acidic,basic -a 8 -b 8 comps.smi")
     with open('comps_pKa.tsv', 'w') as f:
-        f.write(a.read())
+        f.write(pka.read())
     
     p = pd.read_csv('comps_pKa.tsv', sep='\t').drop(columns='id')
     p.index = smiles_list
     p = p.reset_index()
     p = p.rename(columns={'index':'smiles'})
     op = pd.read_csv(chemaxon_pka_csv_path)
-    p = pd.concat([op,p]).drop_duplicates()
+    p = pd.concat([op,p]).drop_duplicates(subset=['smiles'], keep='last')
     p.to_csv(chemaxon_pka_csv_path, index=False)
     print(f'Results saved at {chemaxon_pka_csv_path}.')
 
@@ -460,14 +517,51 @@ def download_kegg_compound(entry:str) -> bool:
     try:
         mol = REST.kegg_get(entry+'/mol')
         with open(file_path, 'w') as f:
-            f.write( REST.kegg_get(entry+'/mol').read() )
+            f.write(REST.kegg_get(entry+'/mol').read())
             print(entry, 'download successful!')
         return True
     except:
         try:
             mol = REST.kegg_get(entry)
             mol_name = mol.readlines()[1].split()[-1]
-            print(f'{entry} is {mol_name}, which has no Molfile')
+            with open(file_path, 'w') as f:
+                f.write('')
+                #print(f'{entry} is {mol_name}, which has no Molfile')
+            return True
         except:
-            print(f'{entry} is not found in kegg')
-        return False
+            #print(f'{entry} is not found in kegg')
+            return False
+
+
+def remove_map_num(mol):
+    mol = deepcopy(mol)
+    [atom.ClearProp('molAtomMapNumber') for atom in mol.GetAtoms()]
+    return mol
+
+
+def reacting_map_num_of_rxn(rxn):
+    rxn.Initialize()
+    map_num = []
+    for mol, atoms_idx in zip(rxn.GetReactants(), rxn.GetReactingAtoms()):
+        map_num = map_num + [mol.GetAtomWithIdx(idx).GetAtomMapNum() for idx in atoms_idx]
+    assert len(set(map_num))==len(map_num)
+    return tuple(map_num)
+
+
+def map_num_to_idx_with_radius(mol:rdkit.Chem.rdchem.Mol, map_num:tuple, radius:int) -> tuple:
+    atoms_idx_radius = [set([atom.GetIdx() for atom in mol.GetAtoms() if atom.GetAtomMapNum() in map_num]), ]
+    for r in range(radius):
+        atoms_idx_r = set()
+        for atom_idx_i in atoms_idx_radius[r]:
+            for atom_j in mol.GetAtomWithIdx(atom_idx_i).GetNeighbors():
+                atoms_idx_r.add(atom_j.GetIdx())
+        for exist_atoms in atoms_idx_radius:
+            atoms_idx_r = atoms_idx_r - exist_atoms
+        atoms_idx_radius.append(atoms_idx_r)
+
+    idxs = set()
+    for idxs_set in atoms_idx_radius:
+        idxs |= idxs_set
+
+    return tuple(idxs)
+    

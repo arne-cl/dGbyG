@@ -73,7 +73,7 @@ def rapid_process_result(loss, r_df, path=True, plot=False):
 
     if plot:
         plt.figure(dpi=100,figsize = (12,6))
-        plt.plot(np.mean(loss**0.5, axis=0))
+        plt.plot(np.mean(loss, axis=0))
         plt.plot(np.mean(ae, axis=0))
         plt.plot(np.median(ae, axis=0))
         plt.scatter(Min_loss, np.mean(loss, axis=0)[Min_loss], c='r', zorder = 2)
