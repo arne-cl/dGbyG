@@ -17,6 +17,7 @@ from .utils import predict_standard_dGf_prime, predict_standard_dGr_prime
 
 class Compound(Compound):
     def __init__(self, mol:rdkit.Chem.rdchem.Mol) -> None:
+        mol = mol
         super().__init__(mol)
         self.name = None
         self.compartment = None
@@ -31,7 +32,7 @@ class Compound(Compound):
     def transformed_standard_dGf_prime(self) -> np.float32:
         ddGf = self.transform(default_condition, self.condition)
         ddGf = ddGf if ddGf else False
-        transformed_standard_dg = (self.standard_dGf_prime + ddGf) if self.mol else np.nan
+        transformed_standard_dg = (self.compute_standard_dGf_prime() + ddGf) if self.mol else np.nan
         return np.round(transformed_standard_dg, 3)
     
     

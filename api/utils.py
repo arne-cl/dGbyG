@@ -129,6 +129,7 @@ def predict_standard_dGr_prime_from_rxn(rxn:rdkit.Chem.rdChemReactions.ChemicalR
             atoms_energy = predict_standard_dGf_prime(mol, mode='atom mode') # shape=[number of nets, atom number, 1]
             changed_atoms_energy = atoms_energy[:,np.array(energy_changed_atom),:].sum(axis=1) # shape=[number of nets, 1]
         molecules_energy.append(changed_atoms_energy * coeff)
+    print(molecules_energy)
     molecules_energy = np.asarray(molecules_energy) # shape=[number of molecules, number of nets, 1]
     molecules_energy = molecules_energy.sum(axis=0).squeeze() # shape=[number of nets]
 
