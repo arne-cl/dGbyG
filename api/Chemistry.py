@@ -16,8 +16,11 @@ from .utils import predict_standard_dGf_prime, predict_standard_dGr_prime
 
 
 class Compound(Compound):
-    def __init__(self, mol:rdkit.Chem.rdchem.Mol) -> None:
-        mol = mol
+    def __init__(self, mol, input_type = 'mol') -> None:
+        if input_type=='mol':
+            mol = mol
+        else:
+            mol = to_mol(mol, input_type)
         super().__init__(mol)
         self.name = None
         self.compartment = None

@@ -138,8 +138,8 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
         smiles = (metanetx_df.loc[name, 'SMILES'])
         mol = smiles_to_mol(smiles)
         return Chem.AddHs(mol)
-
     
+
     # the main body
     cid_type = cid_type.lower()
     methods = {'inchi': inchi_to_mol,
@@ -149,19 +149,26 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
                'hmdb': hmdb_id_to_mol,
                'file': file_to_mol,
                'inchi-key': inchi_key_to_mol,
-               'name':name_to_mol,
+               'name': name_to_mol,
                }
 
-    
-    assert cid_type in methods.keys(), f'{cid_type} id cannot be recognized'
-    _to_mol = methods.get(cid_type)
-    try:
-        mol = _to_mol(cid)
-        mol = Chem.AddHs(mol)
-    except:
-        mol = None
-    
-    return mol
+    if cid_type=='auto':
+        _to_mols = methods
+    else:
+        assert cid_type in methods.keys(), f'{cid_type} id cannot be recognized'
+        _to_mols = {cid_type: methods.get(cid_type)}
+
+    output = {}
+    for _cid_type, _to_mol in _to_mols.items():
+        try:
+            mol = Chem.AddHs(_to_mol(cid))
+        except:
+            mol = None
+        if mol:
+            output[_cid_type] = mol
+    if len(output)>1:
+        raise ValueError(f'Which {cid} is {tuple(output.keys())}?')
+    return tuple(output.values())[0] if output else None
 
 
 def equation_dict_to_mol_dict(equation_dict:dict, cid_type):
@@ -181,6 +188,41 @@ def equation_to_mol_dict(equation, cid_type):
     equation_dict = parse_equation(equation)
     
     return equation_dict_to_mol_dict(equation_dict, cid_type)
+
+
+def equations_to_S(equations) -> pd.DataFrame:
+    comps = set()
+    for cs in [parse_equation(x).keys() for x in equations]:
+        for c in cs:
+            comps.add(c) 
+    S = pd.DataFrame(index=list(comps), columns=range(len(equations)), dtype=float, data=0)
+    for i in range(len(equations)):
+        for comp, coeff in parse_equation(equations[i]).items():
+            S.loc[comp,i] = coeff
+
+    return S
+
+
+def S_to_equations(S, mets) -> list:
+    if len(mets) not in S.shape:
+        raise ValueError('S.shape not match mets length')
+    elif S.shape[0]==S.shape[1]:
+        print('S is square, make sure dim 0 match mets')
+    elif S.shape[0] == len(mets):
+        S = S.T
+    elif S.shape[1] == len(mets):
+        pass
+    else:
+        print('S.shape=', S.shape)
+
+    equations = []
+    for s in S:
+        reactants = np.array(mets)[s!=0]
+        coeff = s[s!=0]
+        equations.append(build_equation(dict(zip(reactants, coeff))))
+
+    return equations
+
 
 
 def normalize_mol(mol:rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
@@ -485,20 +527,6 @@ def ddGr(reaction, condition1, condition2):
         print(ddGf_list)
         return None
     return sum(ddGf_list)
-
-
-
-def equations_to_S(equations) -> pd.DataFrame:
-    comps = set()
-    for cs in [parse_equation(x).keys() for x in equations]:
-        for c in cs:
-            comps.add(c) 
-    S = pd.DataFrame(index=list(comps), columns=range(len(equations)), dtype=float, data=0)
-    for i in range(len(equations)):
-        for comp, coeff in parse_equation(equations[i]).items():
-            S.loc[comp,i] = coeff
-
-    return S
 
 
 
