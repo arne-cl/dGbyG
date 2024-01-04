@@ -11,8 +11,11 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 
 def rapid_linear_reg(x, y, summary=False, plot=False):
-    x = np.array(x).reshape(-1,1)
-    y = np.array(y).reshape(-1,1)
+    ox = np.array(x).reshape(-1,1)
+    oy = np.array(y).reshape(-1,1)
+
+    not_nan = ~(np.isnan(ox)|np.isnan(oy))
+    x, y = ox[not_nan].reshape(-1,1), oy[not_nan].reshape(-1,1)
 
     reg = LinearRegression().fit(x,y)
     X_with_constant = sm.add_constant(x)
@@ -27,13 +30,15 @@ def rapid_linear_reg(x, y, summary=False, plot=False):
     
     print(pearsonr)
     print(spearmanr)
+    py = np.full_like(ox, fill_value=np.nan)
+    py[~np.isnan(ox)] = reg.predict(ox[~np.isnan(ox)].reshape(-1,1)).reshape(-1)
 
     if plot:
-        plt.scatter(x,y)
-        plt.plot(x, reg.predict(x),c = 'red')
+        plt.scatter(ox,oy)
+        plt.plot(ox[not_nan], py[not_nan],c = 'red')
         plt.show()
 
-    return reg.predict(x), pearsonr, spearmanr
+    return py, pearsonr, spearmanr
 
 
 def rapid_process_result(loss, r_df, path=True, plot=False):
@@ -69,7 +74,6 @@ def rapid_process_result(loss, r_df, path=True, plot=False):
     Min_loss = np.argmin(np.mean(loss, axis=0))
     Min_mae = np.argmin(np.median(ae, axis=0))
     print('Min_loss:', Min_loss, np.mean(loss, axis=0)[Min_loss])
-    print('Min_mae:', Min_mae, np.median(ae, axis=0)[Min_mae])
 
     if plot:
         plt.figure(dpi=100,figsize = (12,6))

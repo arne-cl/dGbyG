@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from tqdm import tqdm, trange
-from random import shuffle
+from random import shuffle, seed
 
 import torch
 import torch.nn as nn
@@ -103,8 +103,8 @@ class Model(object):
     
 
 
-    def cross_validation(self, dataset:Train_Dataset, mode, epochs:int, lr:float, weight_decay=0, 
-                         n_start:int=None, n_end:int=None):
+    def cross_validation(self, dataset:Train_Dataset, mode, epochs:int, lr:float, weight_decay=0, fold_num:int=None, 
+                         n_start:int=None, n_end:int=None, train_idx:list=None, val_idx:list=None, random_seed:int=None):
         # This funtion is used for cross_validation
         total_idx = list(range(dataset.S.shape[1]))
         Result_df = pd.DataFrame([], index = total_idx)
@@ -128,10 +128,28 @@ class Model(object):
                 n_start = 0
             if n_end==None:
                 n_end = fold_num
+        
+        elif mode=='K-fold' and type(fold_num)==int and fold_num>=2:
+            print('Mode: K-fold validation. K =', fold_num)
+            if n_start==None:
+                n_start = 0
+            if n_end==None:
+                n_end = fold_num
 
-        elif type(mode)==int:
+        elif mode=='reverse K-fold' and type(fold_num)==int and fold_num>=2:
+            print('Mode: {0} validation. K = {1}'.format(mode, fold_num))
+            if n_start==None:
+                n_start = 0
+            if n_end==None:
+                n_end = fold_num
+
+        elif mode=='manual' and train_idx is not None and val_idx is not None:
+            print('Mode: manual. train size = {0}, val size = {1}'.format(len(train_idx), len(val_idx)))
+            n_start, n_end = 0, 1
+
+        elif type(mode)==int and mode>=2:
             fold_num = mode
-            shuffle(total_idx)
+            mode = 'K-fold'
             print('Mode: K-fold validation. K =', fold_num)
             if n_start==None:
                 n_start = 0
@@ -141,6 +159,9 @@ class Model(object):
         else:
             print('no that mode!')
             return False
+        
+        seed(random_seed)
+        shuffle(total_idx)
 
         # Step 2. 
         for n in range(n_start, n_end):#trange(fold_num, desc="cross validation", position=0):#
@@ -150,10 +171,15 @@ class Model(object):
             network_copy = copy.deepcopy(self.network)
             network_copy.to(self.device)
             
-            val_idx = total_idx[n::fold_num]
-            train_idx = list(set(total_idx)-set(val_idx))
-            assert len(total_idx) == len(val_idx) + len(train_idx)
-
+            if mode in ['leave-one-out', 'K-fold']:
+                val_idx = total_idx[n::fold_num]
+                train_idx = list(set(total_idx)-set(val_idx))
+                assert len(total_idx) == len(val_idx) + len(train_idx)
+            elif mode=='reverse K-fold':
+                train_idx, val_idx = total_idx[n::fold_num], total_idx[(n+1)%fold_num::fold_num]
+            elif mode=='manual':
+                pass
+            
             train_S = S[:, train_idx]
             val_S = S[:, val_idx]
             train_dGs = dGs[train_idx]
