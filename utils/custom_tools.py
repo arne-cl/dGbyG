@@ -3,39 +3,28 @@ import pandas as pd
 
 import scipy.stats
 
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
- 
-import statsmodels.api as sm
-
 import matplotlib.pyplot as plt
 
-def rapid_linear_reg(x, y, summary=False, plot=False):
-    ox = np.array(x).reshape(-1,1)
-    oy = np.array(y).reshape(-1,1)
+def rapid_linear_reg(x, y, plot=False):
+    ox = np.array(x)
+    oy = np.array(y)
 
     not_nan = ~(np.isnan(ox)|np.isnan(oy))
-    x, y = ox[not_nan].reshape(-1,1), oy[not_nan].reshape(-1,1)
+    x, y = ox[not_nan], oy[not_nan]
 
-    reg = LinearRegression().fit(x,y)
-    X_with_constant = sm.add_constant(x)
-    est = sm.OLS(y, X_with_constant)
-    est2 = est.fit()
-    if summary:
-        print(est2.summary())
-    print("The linear model is: Y = {:.5} + {:.5}X".format(reg.intercept_[0], reg.coef_[0][0]))
+    reg = scipy.stats.linregress(x,y)
+    print("The linear model is: Y = {:.5} * X + {:.5}".format(reg.slope, reg.intercept))
 
-    pearsonr = scipy.stats.pearsonr(x.reshape(-1),y.reshape(-1))
-    spearmanr = scipy.stats.spearmanr(x.reshape(-1),y.reshape(-1))
+    pearsonr = scipy.stats.pearsonr(x,y)
+    spearmanr = scipy.stats.spearmanr(x,y)
     
     print(pearsonr)
     print(spearmanr)
-    py = np.full_like(ox, fill_value=np.nan)
-    py[~np.isnan(ox)] = reg.predict(ox[~np.isnan(ox)].reshape(-1,1)).reshape(-1)
+    py = reg.slope * ox + reg.intercept
 
     if plot:
         plt.scatter(ox,oy)
-        plt.plot(ox[not_nan], py[not_nan],c = 'red')
+        plt.plot(ox, py, c = 'red')
         plt.show()
 
     return py, pearsonr, spearmanr
