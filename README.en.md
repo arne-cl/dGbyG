@@ -1,7 +1,10 @@
 # dGbyG
+# Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
 
+This repository is the official implementation of dGbyG, which is model proposed in a paper: Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
 #### Description
-{**When you're done, you can delete the content in this README and update the file with details for others getting started with your repository**}
+
+{**Supporting code for the paper**}
 
 #### Software Architecture
 Software architecture description
