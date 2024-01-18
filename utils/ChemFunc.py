@@ -12,7 +12,7 @@ from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
-from dGbyG.config import *
+from dGbyG.config import kegg_additions_csv_path, kegg_compound_data_path, metanetx_database_path, hmdb_database_path, chemaxon_pka_csv_path
 from dGbyG.utils.constants import *
 
 cache = {}
@@ -98,7 +98,7 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
     
     def metanetx_id_to_mol(id:str):
         if 'metanetx' not in cache:
-            cache['metanetx'] = pd.read_csv(os.path.join(package_path, 'data/MetaNetX/chem_prop.tsv'), sep='\t', header=351, index_col=0)
+            cache['metanetx'] = pd.read_csv(metanetx_database_path, sep='\t', header=351, index_col=0)
         metanetx_df = cache['metanetx']
         smiles = (metanetx_df.loc[id, 'SMILES'])
         mol = smiles_to_mol(smiles)
@@ -106,7 +106,7 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
     
     def hmdb_id_to_mol(id:str):
         if 'hmdb' not in cache:
-            cache['hmdb'] = pd.read_csv(os.path.join(package_path, 'data/HMDB/structures.csv'), index_col=0, dtype={33: object})
+            cache['hmdb'] = pd.read_csv(hmdb_database_path, index_col=0, dtype={33: object})
         hmdb_df = cache['hmdb']
         if len(id.replace('HMDB', '')) < 7:
             id = 'HMDB' + '0'*(7-len(id.replace('HMDB', ''))) + id.replace('HMDB', '')
@@ -116,9 +116,9 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
     
     def inchi_key_to_mol(inchi_key:str):
         if 'hmdb' not in cache:
-            cache['hmdb'] = pd.read_csv(os.path.join(package_path, 'data/HMDB/structures.csv'), index_col=0, dtype={33: object})
+            cache['hmdb'] = pd.read_csv(hmdb_database_path, index_col=0, dtype={33: object})
         if 'metanetx' not in cache:
-            cache['metanetx'] = pd.read_csv(os.path.join(package_path, 'data/MetaNetX/chem_prop.tsv'), sep='\t', header=351, index_col=0)
+            cache['metanetx'] = pd.read_csv(metanetx_database_path, sep='\t', header=351, index_col=0)
         
         if smiles := cache['hmdb'].loc[cache['hmdb'].INCHI_KEY == inchi_key, 'SMILES'].to_list():
             return smiles_to_mol(smiles[0])
@@ -133,7 +133,7 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
     
     def name_to_mol(name:str):
         if 'name' not in cache:
-            cache['name'] = pd.read_csv(os.path.join(package_path, 'data/MetaNetX/chem_prop.tsv'), sep='\t', header=351, index_col=1)
+            cache['name'] = pd.read_csv(metanetx_database_path, sep='\t', header=351, index_col=1)
         metanetx_df = cache['name']
         smiles = (metanetx_df.loc[name, 'SMILES'])
         mol = smiles_to_mol(smiles)

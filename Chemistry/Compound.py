@@ -2,6 +2,7 @@ from typing import Dict, List
 import numpy as np
 import rdkit
 from rdkit import Chem
+from functools import lru_cache
 
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
@@ -28,7 +29,7 @@ class Compound(object):
     def InChI(self) -> str:
         return Chem.MolToInchi(self.mol) if self.mol else None
     
-    
+    @lru_cache(16)
     def pKa(self, temperature=default_T):
         return get_pKa(self, temperature) if self.mol else None
     

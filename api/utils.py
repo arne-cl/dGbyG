@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 from torch_geometric.loader import DataLoader
 
-from dGbyG.config import *
+from dGbyG.config import inference_model_state_dict_dir, train_data_path
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
 from dGbyG.utils.NNFunc import mol_to_graph_data
@@ -31,7 +31,7 @@ untrained_atom_attr = (atom == 0)
 untrained_bond_attr = (bond == 0)
 
 
-
+# GNN models construction
 class networks(nn.Module):
     def __init__(self, dir) -> None:
         super().__init__()
@@ -54,12 +54,7 @@ class networks(nn.Module):
 
         return outputs#.squeeze()
 
-'''
-if inference_model_path:
-    network = torch.load(inference_model_path)
-elif inference_model_state_dict_path:
-    network = MP_network(emb_dim=300, num_layer=2)
-    network.load_state_dict(torch.load(inference_model_state_dict_path))'''
+# read the model parameters
 network = networks(inference_model_state_dict_dir)
 network.eval()
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'

@@ -1,11 +1,17 @@
-inference_model_path = "/home/fanwc/dGbyG/network/best_model.pt"
-inference_model_state_dict_dir = "/home/fanwc/dGbyG/network/best_model_params"
+import os
 
-train_data_path = "/home/fanwc/dGbyG/data/TrainingData.csv"
+package_path = os.path.split(os.path.abspath(__file__))[0]
 
-kegg_compound_data_path = "/home/fanwc/dGbyG/data/kegg_compound"
-kegg_additions_csv_path = "/home/fanwc/dGbyG/data/kegg_compound/kegg_additions.csv"
-chemaxon_pka_csv_path = "/home/fanwc/dGbyG/data/chemaxon_pKa.csv"
-pKa_json_file_path = "/home/fanwc/dGbyG/data/pKa.json"
+# models
+inference_model_state_dict_dir = os.path.join(package_path, 'network', 'best_model_params')
 
-package_path = "/home/fanwc/dGbyG"
+# training data
+train_data_path = os.path.join(package_path, 'data', 'TrainingData.csv')
+
+# compound databases
+kegg_compound_data_path = os.path.join(package_path, 'data', 'kegg_compound')
+kegg_additions_csv_path = os.path.join(package_path, 'data', 'kegg_compound', 'kegg_additions.csv')
+metanetx_database_path = os.path.join(package_path, 'data', 'MetaNetX', 'chem_prop.tsv')
+hmdb_database_path = os.path.join(package_path, 'data', 'HMDB', 'structures.csv')
+chemaxon_pka_csv_path = os.path.join(package_path, 'data', 'chemaxon_pKa.csv')
+pKa_json_file_path = os.path.join(package_path, 'data', 'pKa.json')

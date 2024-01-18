@@ -3,6 +3,7 @@ from typing import Any, Dict
 import rdkit
 import numpy as np
 import pandas as pd
+from functools import lru_cache
 
 import torch
 from torch_geometric.loader import DataLoader
@@ -24,24 +25,24 @@ class Compound(Compound):
         super().__init__(mol)
         self.name = None
         self.compartment = None
-        #self.standard_dGf_prime = self.compute_standard_dGf_prime()
+        
+    @property
+    @lru_cache(32)
+    def standard_dGf_prime(self) -> np.float32:
+        standard_dg = predict_standard_dGf_prime(self.mol).squeeze() if self.mol else np.nan
+        return standard_dg
     
     @property
     def transformed_ddGf(self):
-        ddG = super().transform(default_condition, self.condition)
+        ddG = self.transform(default_condition, self.condition)
         return ddG if ddG else False
     
     @property
     def transformed_standard_dGf_prime(self) -> np.float32:
-        ddGf = self.transform(default_condition, self.condition)
-        ddGf = ddGf if ddGf else False
-        transformed_standard_dg = (self.compute_standard_dGf_prime() + ddGf) if self.mol else np.nan
+        ddGf = self.transformed_ddGf
+        transformed_standard_dg = (self.standard_dGf_prime + ddGf) if self.mol else np.nan
         return np.round(transformed_standard_dg, 3)
     
-    
-    def compute_standard_dGf_prime(self) -> np.float32:
-        standard_dg = predict_standard_dGf_prime(self.mol).squeeze() if self.mol else np.nan
-        return standard_dg
 
 
 
@@ -76,10 +77,8 @@ class Reaction(Reaction):
         elif not balance_it:
             self.rxn = self.reaction
 
-        
-        #self.standard_dGr_prime = self.compute_standard_dGr_prime()
-
     @property
+    @lru_cache(32)
     def standard_dGr_prime(self) -> np.float32:
         rxn_dict = {comp.mol:coeff for comp, coeff in self.rxn.items()}
         if None in rxn_dict.keys():

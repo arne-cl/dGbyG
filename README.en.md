@@ -1,39 +1,47 @@
-# dGbyG
-# Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
+# dGbyG: a GNN-based tool for predicting standard Gibbs energy changes of metabolic reactions
 
-This repository is the official implementation of dGbyG, which is model proposed in a paper: Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
 #### Description
-
-{**Supporting code for the paper**}
+This repository is the official implementation of dGbyG, which is model proposed in a paper: Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
 
 #### Software Architecture
-Software architecture description
+├── api                                 # API of dGbyG
+├── Chemistry                           # custom classes for chemical objects
+├── data                                # databases, training data, and cross-validation results
+│   ├── experimental_dG_from_eQ         # raw data
+│   ├── HMDB                            # HMDB database
+│   ├── kegg_compound                   # kegg compound database
+│   ├── MetaNetX                        # metanetx database
+│   ├── results_data                    # cross-validation results
+│   ├── chemaxon_pKa.csv                # pKa predicted by chemaxon
+│   ├── formation_dg_smiles.csv         # 
+│   └── TrainingData.csv                # training data of GNN model
+├── network                             # Networks and models
+│   ├── best_model_params               # the trained models (100 models in)
+│   ├── Dataset.py                      # 
+│   ├── GNNetwork.py                    # construction of graph neural network
+│   └── trainer.py                      # custom class of trainer
+├── RunAnalysis                         # code for running analysis
+│   ├── CrossValidation_EC.ipynb        # code for leave-one-group-out cross validation classfied by EC classes
+│   ├── CrossValidation_K_fold.ipynb    # code for k-fold cross-validation
+│   ├── Figures.ipynb                   # code for plotting figures
+│   ├── OtherMethods.ipynb              # code for running other methods
+│   ├── PreprocessingRawData.ipynb      # code for pre-processing raw data to training data
+│   ├── SupplementaryFigures.ipynb      # code for plotting supplementary figures
+│   └── Training.ipynb                  # code for training the GNN model
+├── utils                               # basic functions
+├── config.py                           # enviroment variables ()
+├── demo.ipynb                          # tutorial
+└── requirements.txt                    # requirements
 
-#### Installation
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Instructions
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Contribution
-
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
 
 
-#### Gitee Feature
+#### Guidelines
 
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+1.  git clone this project to local
+2.  install the requirements (in requirements)
+3.  follow the tutorial (demo.ipynb)
+
+#### References
+
+If you use or extend our work, please cite the paper as follows:
+doi: https://doi.org/10.1101/2024.01.15.575679
