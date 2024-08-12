@@ -36,12 +36,15 @@ class networks(nn.Module):
     def __init__(self, dir) -> None:
         super().__init__()
         self.nets = nn.ModuleList([])
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         for file in os.listdir(dir):
             path = os.path.join(dir, file)
             net = MP_network(atom_dim=TrainSet[0].x.size(1), bond_dim=TrainSet[0].edge_attr.size(1), emb_dim=300, num_layer=2)
-            net.load_state_dict(torch.load(path))
+            state_dict = torch.load(path, map_location=self.device)
+            net.load_state_dict(state_dict)
             self.nets.append(net)
         self.num = len(self.nets)
+        self.to(self.device)
     
     def forward(self, data, mode='molecule mode'):
         if mode == 'molecule mode':
@@ -66,7 +69,7 @@ network.to(device)
 def predict_standard_dGf_prime(mol:rdkit.Chem.rdchem.Mol, mode='molecule mode') -> np.ndarray:
     # this function return predictions of a set of models with different baseline, 
     # so the results' mean and std cannot represent the real value of the mol
-    data = mol_to_graph_data(mol).to(device)
+    data = mol_to_graph_data(mol).to(network.device)
     with torch.no_grad():
         standard_dGf_prime = network(data, mode=mode).cpu().numpy()#.reshape(-1)
 
