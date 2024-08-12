@@ -1,5 +1,10 @@
 # dGbyG: a GNN-based tool for predicting standard Gibbs energy changes of metabolic reactions
 
+## This is just a fork!
+
+The original repo is here: https://gitee.com/f-wc/dGbyG . Please send your questions and pull requests there.
+I only forked it because I had a hard time getting the software to install.
+
 #### Description
 This repository is the official implementation of dGbyG, which is model proposed in a paper: Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
 
