@@ -18,7 +18,7 @@ from dGbyG.api import Compound, Reaction
 
 
 from dGbyG.utils.constants import default_condition
-print('default_condition is', default_condition)
+print(f'{default_condition=}')
 
 
 # ### 1.1. prepare the equation of reaction
@@ -47,7 +47,7 @@ reaction = Reaction(equation, cid_type='smiles')
 # In[6]:
 
 
-print(reaction.transformed_standard_dGr_prime)
+print(f'{reaction.transformed_standard_dGr_prime=}')
 
 
 # ### 2. Prediction in other condition or for multicompartment reaction
@@ -85,7 +85,7 @@ reaction = Reaction(equation_dict, cid_type='compound')
 # In[15]:
 
 
-print(reaction.transformed_standard_dGr_prime)
+print(f'{reaction.transformed_standard_dGr_prime=}')
 
 
 # In[ ]:
