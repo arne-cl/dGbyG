@@ -12,7 +12,10 @@ from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
-from dGbyG.config import kegg_additions_csv_path, kegg_compound_data_path, metanetx_database_path, hmdb_database_path, chemaxon_pka_csv_path
+import libchebipy
+from libchebipy import ChebiEntity
+
+from dGbyG.config import kegg_additions_csv_path, kegg_compound_data_path, metanetx_database_path, hmdb_database_path, recon3d_mol_dir_path, chemaxon_pka_csv_path, chebi_database_path, lipidmaps_database_path
 from dGbyG.utils.constants import *
 
 cache = {}
@@ -28,6 +31,8 @@ def parse_equation(equation:str, eq_sign=None) -> dict:
             if eq_sign in equation:
                 equation = equation.split(eq_sign)
                 break
+            
+        
         
     if not type(equation)==list:
         return {equation:1}
@@ -43,6 +48,9 @@ def parse_equation(equation:str, eq_sign=None) -> dict:
                 equation_dict[entry] = equation_dict.get(entry,0) + value * coefficient
             else:
                 equation_dict[t] = equation_dict.get(t,0) + coefficient
+                
+    if '' in equation_dict:
+        equation_dict.pop('')
 
     return equation_dict
 
@@ -83,7 +91,7 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
         mol = Chem.MolFromMolFile(path, removeHs=False)
         return Chem.AddHs(mol)
     
-    def kegg_entry_to_mol(entry:str):
+    def kegg_compound_to_mol(entry:str):
         path = os.path.join(kegg_compound_data_path, entry+'.mol')
         if os.path.exists(path):
             mol = file_to_mol(path)
@@ -114,6 +122,29 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
         mol = smiles_to_mol(smiles)
         return Chem.AddHs(mol)
     
+    def chebi_id_to_mol(id:str):
+        libchebipy.set_download_cache_path(chebi_database_path)
+        chebi_entity = ChebiEntity(str(id), )
+        smiles = chebi_entity.get_smiles()
+        mol = smiles_to_mol(smiles)
+        return Chem.AddHs(mol)
+    
+    def lipidmaps_id_to_mol(id:str):
+        if 'lipidmaps' not in cache:
+            cache['lipidmaps'] = pd.read_csv(lipidmaps_database_path, sep='\t', index_col=0)
+        lipidmaps_df = cache['lipidmaps']
+        smiles = lipidmaps_df.loc[id, 'smiles']
+        mol = smiles_to_mol(smiles)
+        return Chem.AddHs(mol)
+    
+    def recon3d_id_to_mol(id:str):
+        if id+'.mol' in os.listdir(recon3d_mol_dir_path):
+            path = os.path.join(recon3d_mol_dir_path, id+'.mol')
+            mol = file_to_mol(path)
+            return Chem.AddHs(mol)
+        else:
+            return None
+        
     def inchi_key_to_mol(inchi_key:str):
         if 'hmdb' not in cache:
             cache['hmdb'] = pd.read_csv(hmdb_database_path, index_col=0, dtype={33: object})
@@ -144,10 +175,15 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
     cid_type = cid_type.lower()
     methods = {'inchi': inchi_to_mol,
                'smiles': smiles_to_mol,
-               'kegg': kegg_entry_to_mol,
-               'metanetx': metanetx_id_to_mol,
-               'hmdb': hmdb_id_to_mol,
                'file': file_to_mol,
+               'kegg': kegg_compound_to_mol,
+               'kegg.compound': kegg_compound_to_mol,
+               'metanetx': metanetx_id_to_mol,
+               'metanetx.chemical': metanetx_id_to_mol,
+               'hmdb': hmdb_id_to_mol,
+               'chebi': chebi_id_to_mol,
+               'lipidmaps': lipidmaps_id_to_mol,
+               'recon3d': recon3d_id_to_mol,
                'inchi-key': inchi_key_to_mol,
                'name': name_to_mol,
                }
@@ -229,7 +265,10 @@ def normalize_mol(mol:rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
     #mol = rdMolStandardize.Uncharger().uncharge(mol)
     #te = rdMolStandardize.TautomerEnumerator() # idem
     #mol = te.Canonicalize(mol)
+    #mol = rdMolStandardize.Cleanup(mol)
     mol = rdMolStandardize.ChargeParent(mol)
+    mol = rdMolStandardize.IsotopeParent(mol)
+    #mol = rdMolStandardize.StereoParent(mol)
     return Chem.AddHs(mol)
 
 
@@ -428,39 +467,67 @@ def ddGf_to_aqueous(pH: float, pMg: float, I: float, T: float, net_charge: float
     return (H_term + Mg_term - is_term)
 
 
+
+def iter_pseudo(dG_dis, d_charge, pH, T, pKa, n):
+    # 
+    acidicV = dict([(x['atomIndex'],x['value']) for x in pKa['acidicValuesByAtom']])
+    basicV = dict([(x['atomIndex'],x['value']) for x in pKa['basicValuesByAtom']])
+    t = list(set(acidicV.keys())|set(basicV.keys()))
+    t.sort()
+
+    if n==len(t):
+        assert len(dG_dis)==len(d_charge)
+        return dG_dis, d_charge
+    else:
+        i = t[n]
+        pka = acidicV.get(i)
+        pkb = basicV.get(i)
+        if pka is not None:
+            dG_dis_a = dG_dis - R * T * np.log(10) * (pH - pka)
+            d_charge_a = d_charge - 1
+        else:
+            dG_dis_a = np.array([])
+            d_charge_a = np.array([])
+        if pkb is not None:
+            dG_dis_b = dG_dis - R * T * np.log(10) * (pkb - pH)
+            d_charge_b = d_charge + 1
+        else:
+            dG_dis_b = np.array([])
+            d_charge_b = np.array([])
+        dG_dis = np.concatenate([dG_dis, dG_dis_a, dG_dis_b])
+        d_charge = np.concatenate([d_charge, d_charge_a, d_charge_b])
+        return iter_pseudo(dG_dis, d_charge, pH, T, pKa, n+1)
+
+
+def pseudoisomers_ddGf(chemaxon_pKa, pH:float, T:float):
+    # 
+    dG_dis, d_charge = np.array([0]), np.array([0])
+
+    return iter_pseudo(dG_dis, d_charge, pH, T, chemaxon_pKa, 0)[0]
+
+
+def pseudoisomers_delta_charge(chemaxon_pKa, pH:float, T:float):
+    # 
+    dG_dis, d_charge = np.array([0]), np.array([0])
+
+    return iter_pseudo(dG_dis, d_charge, pH, T, chemaxon_pKa, 0)[1]
+
+
+def pseudoisomers_ratio(pKa, pH:float, T:float):
+    # 
+    RT = R * T
+    ddGf_standard_prime_j_array = pseudoisomers_ddGf(pKa, pH, T)
+    ratio = np.exp(-ddGf_standard_prime_j_array/RT)/np.sum(np.exp(-ddGf_standard_prime_j_array/RT))
+
+    return ratio
+
+
 def ddGf_to_dissociation(pH: float, T: float, pKa:dict):
     # 
     RT = R * T
-    def pseudoisomers_dG(chemaxon_pKa, pH):
-        acidicV = dict([(x['atomIndex'],x['value']) for x in chemaxon_pKa['acidicValuesByAtom']])
-        basicV = dict([(x['atomIndex'],x['value']) for x in chemaxon_pKa['basicValuesByAtom']])
-        dG_dis = np.array([0])
-        t = list(set(acidicV.keys())|set(basicV.keys()))
-        def iter_pseudo(dG_dis, n):
-            if n==len(t):
-                return dG_dis
-            else:
-                i = t[n]
-                pka = acidicV.get(i)
-                pkb = basicV.get(i)
-                if pka != None:
-                    dG_dis_a = dG_dis - RT * np.log(10) * (pH - pka)
-                else:
-                    dG_dis_a = np.array([])
-                if pkb != None:
-                    dG_dis_b = dG_dis - RT * np.log(10) * (pkb - pH)
-                else:
-                    dG_dis_b = np.array([])
-                dG_dis = np.concatenate([dG_dis, dG_dis_a, dG_dis_b])
-                return iter_pseudo(dG_dis, n+1)
-
-        return iter_pseudo(dG_dis, 0)
     
-    ddGf_standard_prime_j_array = pseudoisomers_dG(pKa, pH)
-
+    ddGf_standard_prime_j_array = pseudoisomers_ddGf(pKa, pH, T)
     ddGf_standard_prime = -RT * np.log(np.sum(np.exp(-ddGf_standard_prime_j_array/RT)))
-    #ratio = np.exp(-ddGf_standard_prime_j_array/RT)/np.sum(np.exp(-ddGf_standard_prime_j_array/RT))
-    #print(ratio.round(decimals=2))
 
     return ddGf_standard_prime
 
@@ -469,24 +536,6 @@ def ddGf_to_elec(charge, e_potential):
     # 
     dg = FARADAY * charge * e_potential
     return dg
-
-
-def ddGf_to_single(compound, condition):
-    # 
-    num_H = compound.atom_bag.get('H', 0)
-    num_Mg = compound.atom_bag.get('Mg', 0)
-    net_charge = compound.atom_bag.get('charge', 0)
-    pH = condition.get('pH', default_pH)
-    T = condition.get('T', default_T)
-    I = condition.get('I', default_I)
-    pMg = condition.get('pMg', default_pMg)
-    pKa = compound.pKa(T)
-    if pKa == None:
-        return None
-    
-    ddgf_to_single = (- ddGf_to_dissociation(pH, T, pKa) - ddGf_to_aqueous(pH, pMg, I, T, net_charge, num_H, num_Mg))
-
-    return ddgf_to_single
 
 
 def ddGf(compound, condition1, condition2):
@@ -501,11 +550,21 @@ def ddGf(compound, condition1, condition2):
         I = condition.get('I', default_I)
         pMg = condition.get('pMg', default_pMg)
         e_potential = condition.get('e_potential', default_e_potential)
+
+        if compound.Smiles == '[H+]':
+            return 0
+
         pKa = compound.pKa(T)
         if pKa == None:
             return None
 
-        ddGf_1_2.append(ddGf_to_dissociation(pH, T, pKa) + ddGf_to_aqueous(pH, pMg, I, T, net_charge, num_H, num_Mg) + ddGf_to_elec(net_charge, e_potential))
+        ratio = pseudoisomers_ratio(pKa, pH, T)
+        d_charge = pseudoisomers_delta_charge(pKa, pH, T)
+        charge = net_charge# + np.sum(ratio * d_charge)
+        
+        num_H_condition = num_H# + np.sum(ratio * d_charge)
+
+        ddGf_1_2.append(ddGf_to_dissociation(pH, T, pKa) + ddGf_to_aqueous(pH, pMg, I, T, charge, num_H_condition, num_Mg) + ddGf_to_elec(charge, e_potential))
     
     return ddGf_1_2[1] - ddGf_1_2[0]
 

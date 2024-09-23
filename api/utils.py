@@ -4,6 +4,7 @@ from typing import Any, Dict
 import rdkit
 import numpy as np
 import pandas as pd
+from functools import lru_cache
 
 import torch
 import torch.nn as nn
@@ -39,7 +40,7 @@ class networks(nn.Module):
         for file in os.listdir(dir):
             path = os.path.join(dir, file)
             net = MP_network(atom_dim=TrainSet[0].x.size(1), bond_dim=TrainSet[0].edge_attr.size(1), emb_dim=300, num_layer=2)
-            net.load_state_dict(torch.load(path))
+            net.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
             self.nets.append(net)
         self.num = len(self.nets)
     
@@ -59,7 +60,6 @@ network = networks(inference_model_state_dict_dir)
 network.eval()
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 network.to(device)
-
 
 
 

@@ -1,5 +1,5 @@
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, Union
 import rdkit
 import numpy as np
 import pandas as pd
@@ -27,24 +27,36 @@ class Compound(Compound):
         self.compartment = None
         
     @property
-    @lru_cache(32)
-    def standard_dGf_prime(self) -> np.float32:
-        standard_dg = predict_standard_dGf_prime(self.mol).squeeze() if self.mol else np.nan
-        return standard_dg
+    @lru_cache(maxsize=None)
+    def standard_dGf_prime_list(self) -> Union[np.ndarray, None]:
+        if self.mol:
+            return predict_standard_dGf_prime(self.mol).squeeze()
+        else:
+            return None
     
     @property
-    def transformed_ddGf(self):
-        ddG = self.transform(default_condition, self.condition)
-        return ddG if ddG else False
+    @lru_cache(maxsize=None)
+    def standard_dGf_prime(self) -> Tuple[np.float32, np.float32]:
+        if self.standard_dGf_prime_list is not None:
+            return np.mean(self.standard_dGf_prime_list), np.std(self.standard_dGf_prime_list)
+        else:
+            return np.nan, np.nan
     
     @property
-    def transformed_standard_dGf_prime(self) -> np.float32:
-        ddGf = self.transformed_ddGf
-        transformed_standard_dg = (self.standard_dGf_prime + ddGf) if self.mol else np.nan
-        return np.round(transformed_standard_dg, 3)
+    def transformed_ddGf(self) -> Union[np.float32, None]:
+        if self.can_be_transformed:
+            return self.transform(default_condition, self.condition)
+        else:
+            return None
     
-
-
+    @property
+    def transformed_standard_dGf_prime(self) -> Tuple[np.float32, np.float32]:
+        if self.can_be_transformed:
+            transformed_standard_dg = (self.standard_dGf_prime[0] + self.transformed_ddGf)
+            return transformed_standard_dg, self.standard_dGf_prime[1]
+        else:
+            return self.standard_dGf_prime
+    
 
 
 
@@ -78,23 +90,36 @@ class Reaction(Reaction):
             self.rxn = self.reaction
 
     @property
-    @lru_cache(32)
-    def standard_dGr_prime(self) -> np.float32:
-        rxn_dict = {comp.mol:coeff for comp, coeff in self.rxn.items()}
-        if None in rxn_dict.keys():
-            return np.nan, np.nan
+    @lru_cache(maxsize=None)
+    def standard_dGr_prime_list(self) -> Union[np.ndarray, None]:
+        if self.is_balanced() == True:
+            standard_dGr_list = np.sum([comp.standard_dGf_prime_list * coeff for comp, coeff in self.rxn.items()], axis=0)
+            return standard_dGr_list
         else:
-            return predict_standard_dGr_prime(rxn_dict)
+            return None
+
+
+    @property
+    @lru_cache(maxsize=None)
+    def standard_dGr_prime(self) -> Tuple[np.float32, np.float32]:
+        # 
+        if self.standard_dGr_prime_list is not None:
+            return np.mean(self.standard_dGr_prime_list), np.std(self.standard_dGr_prime_list)
+        else:
+            return np.nan, np.nan
         
 
     @property
-    def transformed_standard_dGr_prime(self) -> np.float32:
-        transformed_standard_dGr_prime = self.standard_dGr_prime[0]
-        for comp, coeff in self.rxn.items():
-            transformed_standard_dGr_prime += coeff * comp.transformed_ddGf
-        return transformed_standard_dGr_prime, self.standard_dGr_prime[1]
-
-    
+    def transformed_standard_dGr_prime(self) -> Tuple[np.float32, np.float32]:
+        # 
+        if self.can_be_transformed:
+            transformed_ddGr = np.sum([comp.transformed_ddGf * coeff for comp, coeff in self.rxn.items()], axis=0)
+            transformed_standard_dGr_prime = self.standard_dGr_prime[0] + transformed_ddGr
+            return transformed_standard_dGr_prime, self.standard_dGr_prime[1]
+        else:
+            return self.standard_dGr_prime
+            
+            
     
     def balance(self, reaction: Dict[Compound, float], with_H2O=True, with_H_ion=True):
         reaction = reaction.copy()

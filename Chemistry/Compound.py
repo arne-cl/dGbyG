@@ -88,15 +88,8 @@ class Compound(object):
     
     
     def transform(self, condition1, condition2):
-        if self.Smiles == '[H+]':
-            return 0
         return ddGf(self, condition1, condition2) if self.can_be_transformed else None
     
-    
-    def ddGf(self):
-        if self.Smiles == '[H+]':
-            return False
-        return ddGf_to_single(self, self.condition) if self.can_be_transformed else None
     
     
 

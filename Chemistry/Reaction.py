@@ -78,6 +78,10 @@ class Reaction(object):
             for atom, num in comp.atom_bag.items():
                 diff_atom[atom] = diff_atom.get(atom, 0) + coeff * num
 
+        if (diff_atom.get('R', 0) + diff_atom.get('*', 0)) == 0:
+            diff_atom.pop('R', None)
+            diff_atom.pop('*', None)
+
         if ignore_H_ion:
             diff_atom['H'] = diff_atom.get('H', 0) - diff_atom.get('charge', 0)
             diff_atom['charge'] = 0
@@ -136,12 +140,9 @@ class Reaction(object):
     def transform(self, condition1, condition2):
         if self.can_be_transformed:
             ddGf_list = [coeff * comp.transform(condition1, condition2) for comp, coeff in self.rxn.items()]
-            return sum(ddGf_list)
+            return np.sum(ddGf_list)
+        else:
+            return None
         
-
-    def ddGr(self):
-        if self.can_be_transformed:
-            ddGf_list = [coeff * comp.ddGf() for comp, coeff in self.rxn.items()]
-            return sum(ddGf_list)
 
     
