@@ -74,22 +74,22 @@ def build_equation(equation_dict:dict, eq_sign='=') -> str:
 
 
 
-def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
+def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.Mol:
     # 
     if not isinstance(cid, str):
         raise TypeError('cid must be String type, but got {0}'.format(type(cid)))
     
     def inchi_to_mol(inchi:str):
-        mol = Chem.MolFromInchi(inchi, removeHs=False)
-        return Chem.AddHs(mol)
+        mol = Chem.MolFromInchi(inchi, removeHs=False, sanitize=sanitize)
+        return mol
     
     def smiles_to_mol(smiles:str):
-        mol = Chem.MolFromSmiles(smiles)
-        return Chem.AddHs(mol)
+        mol = Chem.MolFromSmiles(smiles, sanitize=sanitize)
+        return mol
     
     def file_to_mol(path:str):
-        mol = Chem.MolFromMolFile(path, removeHs=False)
-        return Chem.AddHs(mol)
+        mol = Chem.MolFromMolFile(path, removeHs=False, sanitize=sanitize)
+        return mol
     
     def kegg_compound_to_mol(entry:str):
         path = os.path.join(kegg_compound_data_path, entry+'.mol')
@@ -102,7 +102,7 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
             if entry in kegg_additions_df.index:
                 inchi = kegg_additions_df.loc[entry, 'inchi']
                 mol = inchi_to_mol(inchi) if pd.notna(inchi) else None
-        return Chem.AddHs(mol)
+        return mol
     
     def metanetx_id_to_mol(id:str):
         if 'metanetx' not in cache:
@@ -110,7 +110,7 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
         metanetx_df = cache['metanetx']
         smiles = (metanetx_df.loc[id, 'SMILES'])
         mol = smiles_to_mol(smiles)
-        return Chem.AddHs(mol)
+        return mol
     
     def hmdb_id_to_mol(id:str):
         if 'hmdb' not in cache:
@@ -120,14 +120,14 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
             id = 'HMDB' + '0'*(7-len(id.replace('HMDB', ''))) + id.replace('HMDB', '')
         smiles = hmdb_df.loc[id, 'SMILES']
         mol = smiles_to_mol(smiles)
-        return Chem.AddHs(mol)
+        return mol
     
     def chebi_id_to_mol(id:str):
         libchebipy.set_download_cache_path(chebi_database_path)
         chebi_entity = ChebiEntity(str(id), )
         smiles = chebi_entity.get_smiles()
         mol = smiles_to_mol(smiles)
-        return Chem.AddHs(mol)
+        return mol
     
     def lipidmaps_id_to_mol(id:str):
         if 'lipidmaps' not in cache:
@@ -135,13 +135,13 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
         lipidmaps_df = cache['lipidmaps']
         smiles = lipidmaps_df.loc[id, 'smiles']
         mol = smiles_to_mol(smiles)
-        return Chem.AddHs(mol)
+        return mol
     
     def recon3d_id_to_mol(id:str):
         if id+'.mol' in os.listdir(recon3d_mol_dir_path):
             path = os.path.join(recon3d_mol_dir_path, id+'.mol')
             mol = file_to_mol(path)
-            return Chem.AddHs(mol)
+            return mol
         else:
             return None
         
@@ -168,7 +168,7 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
         metanetx_df = cache['name']
         smiles = (metanetx_df.loc[name, 'SMILES'])
         mol = smiles_to_mol(smiles)
-        return Chem.AddHs(mol)
+        return mol
     
 
     # the main body
@@ -197,10 +197,14 @@ def to_mol(cid:str, cid_type:str) -> rdkit.Chem.rdchem.Mol:
     output = {}
     for _cid_type, _to_mol in _to_mols.items():
         try:
-            mol = Chem.AddHs(_to_mol(cid))
+            mol = _to_mol(cid)
         except:
             mol = None
         if mol:
+            if Hs==True:
+                mol = Chem.AddHs(mol)
+            elif Hs==False:
+                mol = Chem.RemoveHs(mol)
             output[_cid_type] = mol
     if len(output)>1:
         raise ValueError(f'Which {cid} is {tuple(output.keys())}?')
