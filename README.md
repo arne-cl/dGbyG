@@ -57,9 +57,30 @@ Clone the repository to your local machine using the following command:
 git clone https://gitee.com/f-wc/dGbyG.git
 ```
 
-### Step 3: Install Dependencies
+### Step 2: Install Dependencies
+
+Create a new conda environment (highly recommended) and activate it:
+
+```bash
+conda create -n dGbyG && conda activate dGbyG
+```
+
 
 ### Step 3: Install Dependencies
+
+Install the required dependencies:
+
+```bash
+cd /path/to/dGbyG
+conda install --file requirements.txt
+pip install libChEBIpy
+pip install numpyarray_to_latex
+```
+
+### Step 4: Run the Code
+
+Run the demo code using Jupyter Notebook:
+demo.ipynb
 
 #### References
 
