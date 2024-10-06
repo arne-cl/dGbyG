@@ -82,7 +82,7 @@ pip install numpyarray_to_latex
 Run the demo code using Jupyter Notebook:
 demo.ipynb
 
-#### References
+## References
 
 If you use or extend our work, please cite the paper as follows:
 doi: https://doi.org/10.1101/2024.01.15.575679
