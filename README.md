@@ -1,9 +1,9 @@
 # dGbyG: a GNN-based tool for predicting standard Gibbs energy changes of metabolic reactions
 
-#### Description
+## Description
 This repository is the official implementation of dGbyG, which is model proposed in a paper: Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
 
-#### Software Architecture
+## Software Architecture
 ├── api                                 # API of dGbyG  
 ├── Chemistry                           # custom classes for chemical objects  
 ├── data                                # databases, training data, and cross-validation results  
@@ -42,11 +42,24 @@ This repository is the official implementation of dGbyG, which is model proposed
 
 
 
-#### Guidelines
+## Guidelines
 
-1.  git clone this project to local
-2.  install the requirements (in requirements)
-3.  follow the tutorial (demo.ipynb)
+### Prerequisites
+
+- Git
+- Conda (Anaconda or Miniconda)
+
+### Step 1: Clone the Repository
+
+Clone the repository to your local machine using the following command:
+
+```bash
+git clone https://gitee.com/f-wc/dGbyG.git
+```
+
+### Step 3: Install Dependencies
+
+### Step 3: Install Dependencies
 
 #### References
 
