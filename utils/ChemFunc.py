@@ -191,7 +191,7 @@ def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.M
     if cid_type=='auto':
         _to_mols = methods
     else:
-        assert cid_type in methods.keys(), f'{cid_type} id cannot be recognized'
+        assert cid_type in methods.keys(), f'cid_type must be one of {list(methods.keys())}, {cid_type} id cannot be recognized'
         _to_mols = {cid_type: methods.get(cid_type)}
 
     output = {}
