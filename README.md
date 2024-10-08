@@ -59,7 +59,7 @@ Clone the repository to your local machine using the following command:
 git clone https://gitee.com/f-wc/dGbyG.git
 ```
 
-### Step 2: Install Dependencies
+### Step 2: Create a New Conda Environment (Highly Recommended)
 
 Create a new conda environment (highly recommended) and activate it:
 

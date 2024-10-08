@@ -1,5 +1,5 @@
 data can be download from https://zenodo.org/doi/10.5281/zenodo.10528211
-
+version 1.1
 
 ├── data                                # databases, training data, and cross-validation results  
 │   ├── experimental_dG_from_eQ         # raw data  
