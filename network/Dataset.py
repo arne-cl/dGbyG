@@ -5,7 +5,7 @@ from typing import List
 import torch
 from torch_geometric.data import Dataset, Data
 
-from dGbyG.Chemistry import Compound, Reaction
+from dGbyG.Chemistry import _Compound, Reaction
 from dGbyG.utils.ChemFunc import *
 from dGbyG.utils.NNFunc import mol_to_graph_data
 
@@ -26,7 +26,7 @@ class Train_Dataset(Dataset):
         self.weight = torch.tensor(weights).float() if weights is not None else None
 
         self.mols = np.asarray([to_mol(cid, cid_type='smiles') for cid in self.cids])
-        self.compounds = np.asarray([Compound(mol) for mol in self.mols])
+        self.compounds = np.asarray([_Compound(mol) for mol in self.mols])
         
 
     def len(self) -> int:

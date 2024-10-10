@@ -11,12 +11,12 @@ from torch_geometric.loader import DataLoader
 from dGbyG.config import *
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
-from dGbyG.Chemistry import Compound, Reaction
+from dGbyG.Chemistry import _Compound, Reaction
 
 from .utils import predict_standard_dGf_prime, predict_standard_dGr_prime
 
 
-class Compound(Compound):
+class Compound(_Compound):
     def __init__(self, mol, input_type = 'mol') -> None:
         if input_type=='mol':
             mol = mol

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Union, Callable
 import numpy as np
 import rdkit
 from rdkit import Chem
@@ -6,14 +6,23 @@ from functools import lru_cache
 
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
+from dGbyG.utils.CustomError import *
 
 
-
-class Compound(object):
-    def __init__(self, mol:rdkit.Chem.rdchem.Mol) -> None:
+class _Compound(object):
+    def __init__(self, mol:rdkit.Chem.rdchem.Mol | None) -> None:
+        '''
+        mol: rdkit.Chem.rdchem.Mol or None
+        '''
         self.input_mol = mol
-        self.mol = normalize_mol(mol) if mol else None
-        self.atom_bag = atom_bag(self.mol) if mol else None
+        if isinstance(mol, rdkit.Chem.rdchem.Mol):
+            self.mol = normalize_mol(mol)
+            self.atom_bag = atom_bag(self.mol)
+        elif mol is None:
+            self.mol = None
+            self.atom_bag = None
+        else:
+            raise InputValueError('The input of _Compound() must be rdkit.Chem.rdchem.Mol or None.')
         self._condition = default_condition.copy()
         self._l_concentration = None
         self._u_concentration = None
@@ -29,19 +38,22 @@ class Compound(object):
     def InChI(self) -> str:
         return Chem.MolToInchi(self.mol) if self.mol else None
     
-    @lru_cache(16)
-    def pKa(self, temperature=default_T):
-        return get_pKa(self, temperature) if self.mol else None
-    
-    
     @property
     def condition(self) -> Dict[str, float]:
         return self._condition
     
     @condition.setter
-    def condition(self, condition: Dict[str, float or int]):
-        for k, v in condition.items():
-            self._condition[k] = float(v)
+    def condition(self, condition: Dict[str, float | int]):
+        if not isinstance(condition, dict):
+            raise InputValueError('The input of condition must be a dict.')
+        elif x:=set(condition.keys()) - set(self.condition.keys()):
+            raise InputValueError(f'Condition includes {', '.join(self.condition.keys())}, but got {', '.join(x)}.')
+        else:
+            for k,v in condition.items():
+                if isinstance(v, (int, float)):
+                    self._condition[k] = float(v)
+                else:
+                    raise InputValueError(f'The value of {k} must be a float or int, but got {type(condition[k])}.')
 
     @property
     def uz(self):
@@ -78,8 +90,11 @@ class Compound(object):
     def l_concentration(self, concentration:float):
         self._l_concentration = concentration
         self._lz = np.log10(concentration)
-    
 
+    @lru_cache(16)
+    def pKa(self, temperature=default_T):
+        return get_pKa(self, temperature) if self.mol else None
+    
     @property
     def can_be_transformed(self) -> bool:
         if self.Smiles == '[H+]':
@@ -88,7 +103,12 @@ class Compound(object):
     
     
     def transform(self, condition1, condition2):
-        return ddGf(self, condition1, condition2) if self.can_be_transformed else None
+        if self.can_be_transformed == True:
+            return ddGf(self, condition1, condition2)
+        elif self.can_be_transformed == False:
+            raise NoPkaError('This compound has no available Pka value, so it cannot be transformed.')
+        else:
+            raise ValueError('Unknown value of self.can_be_transformed')
     
     
     

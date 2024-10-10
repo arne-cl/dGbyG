@@ -4,12 +4,12 @@ from rdkit import Chem
 
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
-from dGbyG.Chemistry.Compound import Compound
-
+from dGbyG.utils.CustomError import *
+from dGbyG.Chemistry.Compound import _Compound
 
 
 class Reaction(object):
-    def __init__(self, reaction, cid_type='smiles') -> None:
+    def __init__(self, reaction, cid_type) -> None:
         self.input_reaction = reaction
         if isinstance(reaction, str):
             self.reaction_dict = parse_equation(reaction)
@@ -20,13 +20,13 @@ class Reaction(object):
         
         self.reaction = {}
         for comp, coeff in self.reaction_dict.items():
-            if isinstance(comp, Compound):
+            if isinstance(comp, _Compound):
                 pass
             elif isinstance(comp, Chem.rdchem.Mol):
-                comp = Compound(comp)
+                comp = _Compound(comp)
             elif isinstance(comp, str):
                 mol = to_mol(comp, cid_type)
-                comp = Compound(mol)
+                comp = _Compound(mol)
             else:
                 raise ValueError('Cannot accept type{0}'.format(type(comp)))
             self.reaction.update({comp:float(coeff)})
@@ -53,11 +53,11 @@ class Reaction(object):
         return build_equation(self.rxnInChI)
     
     @property
-    def substrates(self) -> Dict[Compound, float]:
+    def substrates(self) -> Dict[_Compound, float]:
         return dict([(c,v) for c,v in self.rxn.items() if v<0])
     
     @property
-    def products(self) -> Dict[Compound, float]:
+    def products(self) -> Dict[_Compound, float]:
         return dict([(c,v) for c,v in self.rxn.items() if v>0])
 
     
@@ -98,7 +98,7 @@ class Reaction(object):
     
     
         
-    def balance(self, reaction: Dict[Compound, float], with_H2O=True, with_H_ion=True) -> Dict[Compound, float]:
+    def balance(self, reaction: Dict[_Compound, float], with_H2O=True, with_H_ion=True) -> Dict[_Compound, float]:
         reaction = reaction.copy()
         diff_atom = {}
         for comp, coeff in reaction.items():
@@ -110,7 +110,7 @@ class Reaction(object):
         compounds_smiles = [comp.Smiles for comp in reaction.keys()]
         if with_H_ion and num_H_ion:
             if '[H+]' not in compounds_smiles:
-                reaction[Compound(to_mol('[H+]', cid_type='smiles'))] = -num_H_ion
+                reaction[_Compound(to_mol('[H+]', cid_type='smiles'))] = -num_H_ion
             else:
                 for comp in reaction.keys():
                     if comp.Smiles == '[H+]':
@@ -119,7 +119,7 @@ class Reaction(object):
 
         if with_H2O and num_H2O:
             if '[H]O[H]' not in compounds_smiles:
-                reaction[Compound(to_mol('[H]O[H]', cid_type='smiles'))] = -num_H2O
+                reaction[_Compound(to_mol('[H]O[H]', cid_type='smiles'))] = -num_H2O
             else:
                 for comp in reaction.keys():
                     if comp.Smiles == '[H]O[H]':

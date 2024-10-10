@@ -8,8 +8,6 @@ import torch
 from torch_geometric.data import Data
 from torch_geometric.utils import add_self_loops
 
-from dGbyG.Chemistry.Compound import Compound
-from dGbyG.Chemistry.Reaction import Reaction
 
 # Atom's features
 Num_atomic_number = 119 # including the extra mask tokens
