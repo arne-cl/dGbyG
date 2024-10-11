@@ -5,7 +5,7 @@ from typing import List
 import torch
 from torch_geometric.data import Dataset, Data
 
-from dGbyG.Chemistry import _Compound, Reaction
+from dGbyG.Chemistry import _Compound
 from dGbyG.utils.ChemFunc import *
 from dGbyG.utils.NNFunc import mol_to_graph_data
 

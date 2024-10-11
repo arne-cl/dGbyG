@@ -11,7 +11,7 @@ from torch_geometric.loader import DataLoader
 from dGbyG.config import *
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
-from dGbyG.Chemistry import _Compound, Reaction
+from dGbyG.Chemistry import _Compound, _Reaction
 
 from .utils import predict_standard_dGf_prime, predict_standard_dGr_prime
 
@@ -61,7 +61,7 @@ class Compound(_Compound):
 
 
 
-class Reaction(Reaction):
+class Reaction(_Reaction):
     def __init__(self, reaction, cid_type='compound', balance_it=True) -> None:
         self.input_reaction = reaction
         if isinstance(reaction, str):

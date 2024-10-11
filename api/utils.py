@@ -74,7 +74,7 @@ def predict_standard_dGf_prime(mol:rdkit.Chem.rdchem.Mol, mode='molecule mode') 
     
 
 
-def predict_standard_dGr_prime(rxn_dict:Dict[rdkit.Chem.rdchem.Mol, int or float]) -> Tuple[float]:
+def predict_standard_dGr_prime(rxn_dict:Dict[rdkit.Chem.rdchem.Mol, int | float]) -> Tuple[float]:
     # 
     dGf_mat = []
     for mol, coeff in rxn_dict.items():

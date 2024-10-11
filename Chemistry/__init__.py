@@ -1,2 +1,2 @@
 from .Compound import _Compound
-from .Reaction import Reaction
+from .Reaction import _Reaction

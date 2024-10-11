@@ -8,7 +8,7 @@ from dGbyG.utils.CustomError import *
 from dGbyG.Chemistry.Compound import _Compound
 
 
-class Reaction(object):
+class _Reaction(object):
     def __init__(self, reaction, cid_type) -> None:
         self.input_reaction = reaction
         if isinstance(reaction, str):
