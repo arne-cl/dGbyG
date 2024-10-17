@@ -13,12 +13,13 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
 import libchebipy
-from libchebipy import ChebiEntity
 
 from dGbyG.config import kegg_additions_csv_path, kegg_compound_data_path, metanetx_database_path, hmdb_database_path, recon3d_mol_dir_path, chemaxon_pka_csv_path, chebi_database_path, lipidmaps_database_path
 from dGbyG.utils.constants import *
+from dGbyG.utils._to_mol_methods import *
+from dGbyG.utils.CustomError import *
 
-cache = {}
+pka_cache = {}
 
 
 def parse_equation(equation:str, eq_sign=None) -> dict:
@@ -73,106 +74,7 @@ def build_equation(equation_dict:dict, eq_sign='=') -> str:
     return equation
 
 
-
-def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.Mol:
-    # 
-    if not isinstance(cid, str):
-        raise TypeError('cid must be String type, but got {0}'.format(type(cid)))
-    
-    def inchi_to_mol(inchi:str):
-        mol = Chem.MolFromInchi(inchi, removeHs=False, sanitize=sanitize)
-        return mol
-    
-    def smiles_to_mol(smiles:str):
-        mol = Chem.MolFromSmiles(smiles, sanitize=sanitize)
-        return mol
-    
-    def file_to_mol(path:str):
-        mol = Chem.MolFromMolFile(path, removeHs=False, sanitize=sanitize)
-        return mol
-    
-    def kegg_compound_to_mol(entry:str):
-        path = os.path.join(kegg_compound_data_path, entry+'.mol')
-        if os.path.exists(path):
-            mol = file_to_mol(path)
-        #elif download_kegg_compound(entry):
-        #    mol = file_to_mol(path)
-        else:
-            kegg_additions_df = pd.read_csv(kegg_additions_csv_path, index_col=0)
-            if entry in kegg_additions_df.index:
-                inchi = kegg_additions_df.loc[entry, 'inchi']
-                mol = inchi_to_mol(inchi) if pd.notna(inchi) else None
-        return mol
-    
-    def metanetx_id_to_mol(id:str):
-        if 'metanetx' not in cache:
-            cache['metanetx'] = pd.read_csv(metanetx_database_path, sep='\t', header=351, index_col=0)
-        metanetx_df = cache['metanetx']
-        smiles = (metanetx_df.loc[id, 'SMILES'])
-        mol = smiles_to_mol(smiles)
-        return mol
-    
-    def hmdb_id_to_mol(id:str):
-        if 'hmdb' not in cache:
-            cache['hmdb'] = pd.read_csv(hmdb_database_path, index_col=0, dtype={33: object})
-        hmdb_df = cache['hmdb']
-        if len(id.replace('HMDB', '')) < 7:
-            id = 'HMDB' + '0'*(7-len(id.replace('HMDB', ''))) + id.replace('HMDB', '')
-        smiles = hmdb_df.loc[id, 'SMILES']
-        mol = smiles_to_mol(smiles)
-        return mol
-    
-    def chebi_id_to_mol(id:str):
-        libchebipy.set_download_cache_path(chebi_database_path)
-        chebi_entity = ChebiEntity(str(id), )
-        smiles = chebi_entity.get_smiles()
-        mol = smiles_to_mol(smiles)
-        return mol
-    
-    def lipidmaps_id_to_mol(id:str):
-        if 'lipidmaps' not in cache:
-            cache['lipidmaps'] = pd.read_csv(lipidmaps_database_path, sep='\t', index_col=0)
-        lipidmaps_df = cache['lipidmaps']
-        smiles = lipidmaps_df.loc[id, 'smiles']
-        mol = smiles_to_mol(smiles)
-        return mol
-    
-    def recon3d_id_to_mol(id:str):
-        if id+'.mol' in os.listdir(recon3d_mol_dir_path):
-            path = os.path.join(recon3d_mol_dir_path, id+'.mol')
-            mol = file_to_mol(path)
-            return mol
-        else:
-            return None
-        
-    def inchi_key_to_mol(inchi_key:str):
-        if 'hmdb' not in cache:
-            cache['hmdb'] = pd.read_csv(hmdb_database_path, index_col=0, dtype={33: object})
-        if 'metanetx' not in cache:
-            cache['metanetx'] = pd.read_csv(metanetx_database_path, sep='\t', header=351, index_col=0)
-        
-        if smiles := cache['hmdb'].loc[cache['hmdb'].INCHI_KEY == inchi_key, 'SMILES'].to_list():
-            return smiles_to_mol(smiles[0])
-        elif smiles := cache['metanetx'].loc[cache['metanetx'].InChIKey == 'InChIKey='+inchi_key, 'SMILES'].to_list():
-            return smiles_to_mol(smiles[0])
-        elif smiles := cache['hmdb'].loc[cache['hmdb'].INCHI_KEY.apply(lambda x:x[:-2]) == inchi_key[:-2], 'SMILES'].to_list():
-            return smiles_to_mol(smiles[0])
-        elif smiles := cache['metanetx'].loc[cache['metanetx'].InChIKey.apply(lambda x:x[:-2] if pd.notna(x) else x) == 'InChIKey='+inchi_key[:-2], 'SMILES'].to_list():
-            return smiles_to_mol(smiles[0])
-        else:
-            return None
-    
-    def name_to_mol(name:str):
-        if 'name' not in cache:
-            cache['name'] = pd.read_csv(metanetx_database_path, sep='\t', header=351, index_col=1)
-        metanetx_df = cache['name']
-        smiles = (metanetx_df.loc[name, 'SMILES'])
-        mol = smiles_to_mol(smiles)
-        return mol
-    
-
-    # the main body
-    cid_type = cid_type.lower()
+def to_mol_methods():
     methods = {'inchi': inchi_to_mol,
                'smiles': smiles_to_mol,
                'file': file_to_mol,
@@ -187,12 +89,27 @@ def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.M
                'inchi-key': inchi_key_to_mol,
                'name': name_to_mol,
                }
+    return methods
 
+
+def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.Mol:
+    # 
+    if not isinstance(cid, str):
+        raise InputTypeError('cid must be String type, but got {0}'.format(type(cid)))
+    elif not isinstance(cid_type, str):
+        raise InputTypeError('cid_type must be String type, but got {0}'.format(type(cid_type)))
+
+    # the main body
+    methods = to_mol_methods()
+
+    if cid_type.lower() not in methods.keys():
+        raise InputValueError(f'cid_type must be one of {list(methods.keys())}, {cid_type} id cannot be recognized')
+    
+    cid_type = cid_type.lower()
     if cid_type=='auto':
         _to_mols = methods
     else:
-        assert cid_type in methods.keys(), f'cid_type must be one of {list(methods.keys())}, {cid_type} id cannot be recognized'
-        _to_mols = {cid_type: methods.get(cid_type)}
+        _to_mols = {cid_type: methods[cid_type]}
 
     output = {}
     for _cid_type, _to_mol in _to_mols.items():
@@ -349,15 +266,15 @@ def get_pKa(compound, temperature:float=default_T, source='chemaxon_file') -> li
     def get_pka_from_file(compound, temperature):
         # 
         smiles = compound.Smiles
-        if 'chemaxon_file' not in cache.keys():
-            cache['chemaxon_file'] = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
-        pKa_df = cache['chemaxon_file']
+        if 'chemaxon_file' not in pka_cache.keys():
+            pka_cache['chemaxon_file'] = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
+        pKa_df = pka_cache['chemaxon_file']
 
         if smiles not in pKa_df.index:
             print(smiles, 'pka not in file')
             calculate_pKa_batch_to_file([smiles])
             pKa_df = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
-            cache['chemaxon_file'] = pKa_df
+            pka_cache['chemaxon_file'] = pKa_df
 
         pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
         pka = pKa_df.loc[smiles, :]

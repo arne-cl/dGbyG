@@ -12,17 +12,23 @@ from dGbyG.config import *
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
 from dGbyG.Chemistry import _Compound, _Reaction
+from dGbyG.utils.CustomError import *
 
 from .utils import predict_standard_dGf_prime, predict_standard_dGr_prime
 
 
 class Compound(_Compound):
-    def __init__(self, mol, input_type = 'mol') -> None:
-        if input_type=='mol':
-            mol = mol
+    def __init__(self, mol: Union[rdkit.Chem.rdchem.Mol, str], mol_type:str=None, input_type:str = 'mol') -> None:
+        if mol_type is None:
+            mol_type = input_type
+        if isinstance(mol_type, str):
+            if mol_type=='mol':
+                mol = mol
+            else:
+                mol = to_mol(mol, mol_type)
+            super().__init__(mol)
         else:
-            mol = to_mol(mol, input_type)
-        super().__init__(mol)
+            raise InputValueError(f'mol_type must be a string, but got {type(mol_type)}')
         self.name = None
         self.compartment = None
         
@@ -69,7 +75,7 @@ class Reaction(_Reaction):
         elif isinstance(reaction, dict):
             self.reaction_dict = reaction
         else:
-            raise ValueError('Cannot accept type{0}'.format(type(reaction)))
+            raise InputValueError('Cannot accept type{0}'.format(type(reaction)))
         
         self.reaction = {}
         for comp, coeff in self.reaction_dict.items():
@@ -81,7 +87,7 @@ class Reaction(_Reaction):
                 mol = to_mol(comp, cid_type)
                 comp = Compound(mol)
             else:
-                raise ValueError('Cannot accept type{0}'.format(type(comp)))
+                raise InputValueError('Cannot accept type{0}'.format(type(comp)))
             self.reaction.update({comp:coeff})
 
         if balance_it:
