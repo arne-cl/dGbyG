@@ -39,6 +39,8 @@ class _Compound(object):
             raise InputValueError('The input of condition must be a dict.')
         elif x:=set(condition.keys()) - set(self.condition.keys()):
             raise InputValueError(f'Condition includes {', '.join(self.condition.keys())}, but got {', '.join(x)}.')
+        elif condition.get('T', 298.15) != 298.15:
+            raise InputValueError('The temperature cannot be changed and must be 298.15 K.')
         else:
             for k,v in condition.items():
                 if isinstance(v, (int, float)):
@@ -109,14 +111,8 @@ class _Compound(object):
         return Chem.MolToInchi(self.mol) if self.mol else None
     
     @property
-    def image(self, remove_Hs=True):
-        if self.mol is None:
-            return None
-        if remove_Hs is True:
-            mol = Chem.RemoveHs(self.mol)
-        else:
-            mol = Chem.AddHs(self.mol)
-        return Chem.Draw.MolToImage(mol)
+    def image(self):
+       return Chem.Draw.MolToImage(Chem.RemoveHs(self.mol)) if self.mol else None
     
     
     
