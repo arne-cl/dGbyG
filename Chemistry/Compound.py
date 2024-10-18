@@ -28,15 +28,6 @@ class _Compound(object):
         self._u_concentration = None
         self._lz = None
         self._uz = None
-
-
-    @property
-    def Smiles(self) -> str:
-        return Chem.MolToSmiles(self.mol, canonical=True) if self.mol else None
-    
-    @property
-    def InChI(self) -> str:
-        return Chem.MolToInchi(self.mol) if self.mol else None
     
     @property
     def condition(self) -> Dict[str, float]:
@@ -101,7 +92,6 @@ class _Compound(object):
             return True
         return True if self.pKa(default_T) else False
     
-    
     def transform(self, condition1, condition2):
         if self.can_be_transformed == True:
             return ddGf(self, condition1, condition2)
@@ -109,6 +99,24 @@ class _Compound(object):
             raise NoPkaError('This compound has no available Pka value, so it cannot be transformed.')
         else:
             raise ValueError('Unknown value of self.can_be_transformed')
+
+    @property
+    def Smiles(self) -> str:
+        return Chem.MolToSmiles(self.mol, canonical=True) if self.mol else None
+    
+    @property
+    def InChI(self) -> str:
+        return Chem.MolToInchi(self.mol) if self.mol else None
+    
+    @property
+    def image(self, remove_Hs=True):
+        if self.mol is None:
+            return None
+        if remove_Hs is True:
+            mol = Chem.RemoveHs(self.mol)
+        else:
+            mol = Chem.AddHs(self.mol)
+        return Chem.Draw.MolToImage(mol)
     
     
     
