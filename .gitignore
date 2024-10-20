@@ -1,2 +1,7 @@
+./.gitignore
+
 ./dGbyG.egg-info
 
+./dGbyG/__pycache__/
+
+test.ipynb
