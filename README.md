@@ -5,22 +5,8 @@ This repository is the official implementation of dGbyG, which is model proposed
 
 Unraveling principles of thermodynamics for genome-scale metabolic networks using graph neural networks
 
+
 ## Software Architecture
-├── 
-│   ├── 
-│   ├── 
-│   ├── 
-│   ├── 
-│   ├── 
-│   ├── 
-│   ├── 
-│   ├── 
-│   ├── 
-│   └── 
-├── utils                               # basic functions  
-├── config.py                           # enviroment variables  
-├── demo.ipynb                          # tutorial  
-└── requirements.txt                    # requirements  
 
 dGbyG
 ├── dGbyG
