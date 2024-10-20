@@ -8,8 +8,8 @@ Unraveling principles of thermodynamics for genome-scale metabolic networks usin
 
 ## Software Architecture
 
-dGbyG
-├── dGbyG
+dGbyG  
+├── dGbyG  
 │   ├── api                                 # API of dGbyG  
 │   ├── Chemistry                           # custom classes for chemical objects  
 │   ├── data                                # databases, training data, and cross-validation results  
