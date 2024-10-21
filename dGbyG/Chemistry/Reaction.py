@@ -7,41 +7,41 @@ from dGbyG.utils.ChemFunc import *
 from dGbyG.utils.CustomError import *
 from dGbyG.Chemistry.Compound import _Compound
 
-
 class _Reaction(object):
-    def __init__(self, reaction, cid_type) -> None:
+    def __init__(self, reaction:Dict[_Compound, float|int]) -> None:
         self.input_reaction = reaction
-        if isinstance(reaction, str):
-            self.reaction_dict = parse_equation(reaction)
-        elif isinstance(reaction, dict):
-            self.reaction_dict = reaction
-        else:
-            raise ValueError('Cannot accept type{0}'.format(type(reaction)))
+        if not isinstance(reaction, dict):
+            raise InputValueError(f'Input of _Reaction should be a dict, but got {type(reaction)}')
         
-        self.reaction = {}
-        for comp, coeff in self.reaction_dict.items():
-            if isinstance(comp, _Compound):
-                pass
-            elif isinstance(comp, Chem.rdchem.Mol):
-                comp = _Compound(comp)
-            elif isinstance(comp, str):
-                mol = to_mol(comp, cid_type)
-                comp = _Compound(mol)
-            else:
-                raise ValueError('Cannot accept type{0}'.format(type(comp)))
-            self.reaction.update({comp:float(coeff)})
+        for comp, coeff in reaction.items():
+            if not isinstance(comp, _Compound):
+                raise InputValueError(f"The key's type of input dict should be Compound, but got {type(comp)}")
+            elif not isinstance(coeff, (float, int)):
+                raise InputValueError(f"The value's type of input dict should be float or int, but got {type(coeff)}")
 
-        self.rxn = self.balance(self.reaction, with_H2O=True, with_H_ion=True)
+        self.reaction = self.balance(reaction, with_H2O=True, with_H_ion=True)
 
     
     @property
+    def condition(self) -> Dict[str, float]:
+        conditions = {}
+        for comp, coeff in self.reaction.items():
+            conditions[comp] = comp.condition
+        return conditions
+    
+    @condition.setter
+    def condition(self, condition: Dict[str, float | int]):
+        for comp, coeff in self.reaction.items():
+            comp.condition = condition
+        
+    @property
     def rxnSmiles(self) -> str:
-        rxn_dict_smiles = map(lambda item: (item[0].Smiles, item[1]), self.rxn.items())
+        rxn_dict_smiles = map(lambda item: (item[0].Smiles, item[1]), self.reaction.items())
         return dict(rxn_dict_smiles)
     
     @property
     def rxnInChI(self) -> str:
-        rxn_dict_inchi = map(lambda item: (item[0].InChI, item[1]), self.rxn.items())
+        rxn_dict_inchi = map(lambda item: (item[0].InChI, item[1]), self.reaction.items())
         return dict(rxn_dict_inchi)
     
     @property
@@ -54,51 +54,29 @@ class _Reaction(object):
     
     @property
     def substrates(self) -> Dict[_Compound, float]:
-        return dict([(c,v) for c,v in self.rxn.items() if v<0])
+        return dict([(c,v) for c,v in self.reaction.items() if v<0])
     
     @property
     def products(self) -> Dict[_Compound, float]:
-        return dict([(c,v) for c,v in self.rxn.items() if v>0])
+        return dict([(c,v) for c,v in self.reaction.items() if v>0])
 
     
     
     def pKa(self, temperature=default_T):
         pKa = []
-        for compound in self.rxn:
+        for compound in self.reaction:
             pKa.append(compound.pKa(temperature))
         return pKa
     
     
     
     def is_balanced(self, ignore_H_ion=False, ignore_H2O=False) -> bool:
-        diff_atom = {}
-        for comp, coeff in self.rxn.items():
-            if comp.atom_bag==None:
-                return None
-            for atom, num in comp.atom_bag.items():
-                diff_atom[atom] = diff_atom.get(atom, 0) + coeff * num
-
-        if (diff_atom.get('R', 0) + diff_atom.get('*', 0)) == 0:
-            diff_atom.pop('R', None)
-            diff_atom.pop('*', None)
-
-        if ignore_H_ion:
-            diff_atom['H'] = diff_atom.get('H', 0) - diff_atom.get('charge', 0)
-            diff_atom['charge'] = 0
-        if ignore_H2O:
-            diff_atom['H'] = diff_atom.get('H', 0) - 2 * diff_atom.get('O', 0)
-            diff_atom['O'] = 0
-            
-        unbalanced_atom = {}
-        for atom, num in diff_atom.items():
-            if num!=0:
-                unbalanced_atom[atom] = num
-
-        return False if unbalanced_atom else True
-    
+        mol_dict = dict([(comp.mol, coeff) for comp, coeff in self.reaction.items()])
+        return is_balanced(mol_dict, ignore_H_ion=ignore_H_ion, ignore_H2O=ignore_H2O)
     
         
     def balance(self, reaction: Dict[_Compound, float], with_H2O=True, with_H_ion=True) -> Dict[_Compound, float]:
+        original_reaction = reaction
         reaction = reaction.copy()
         diff_atom = {}
         for comp, coeff in reaction.items():
@@ -126,20 +104,23 @@ class _Reaction(object):
                         reaction[comp] = reaction[comp] - num_H2O
                         break
 
-        return reaction
+        if is_balanced(dict([(comp.mol, coeff) for comp, coeff in reaction.items()]), ):
+            return reaction
+        else:
+            return original_reaction
 
 
     
     @property
     def can_be_transformed(self) -> bool:
-        for x in self.rxn.keys():
+        for x in self.reaction.keys():
             if not x.can_be_transformed:
                 return False
         return True
 
     def transform(self, condition1, condition2):
         if self.can_be_transformed:
-            ddGf_list = [coeff * comp.transform(condition1, condition2) for comp, coeff in self.rxn.items()]
+            ddGf_list = [coeff * comp.transform(condition1, condition2) for comp, coeff in self.reaction.items()]
             return np.sum(ddGf_list)
         else:
             return None

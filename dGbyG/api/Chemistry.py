@@ -68,33 +68,38 @@ class Compound(_Compound):
 
 
 class Reaction(_Reaction):
-    def __init__(self, reaction, cid_type='compound', balance_it=True) -> None:
-        self.input_reaction = reaction
+    '''
+    '''
+    def __init__(self, reaction, mol_type:str) -> None:
         if isinstance(reaction, str):
-            self.reaction_dict = parse_equation(reaction)
+            reaction_dict = parse_equation(reaction)
         elif isinstance(reaction, dict):
-            self.reaction_dict = reaction
+            reaction_dict = reaction
         else:
-            raise InputValueError('Cannot accept type{0}'.format(type(reaction)))
+            raise InputValueError(f'Cannot accept type{type(reaction)} as the input of reaction.')
+        
+        if not isinstance(mol_type, str):
+            raise InputValueError(f'Type of mol_type should be str, but got type{mol_type}')
         
         self.reaction = {}
-        for comp, coeff in self.reaction_dict.items():
-            if isinstance(comp, Compound):
-                pass
-            elif isinstance(comp, rdkit.Chem.rdchem.Mol):
-                comp = Compound(comp)
+        for comp, coeff in reaction_dict.items():
+            if isinstance(comp, Compound) or mol_type.lower()=='compound':
+                if not (isinstance(comp, Compound) and mol_type.lower()=='compound'):
+                    raise InputValueError(f"Key's of reaction is {type(comp)}, but mol_type is {mol_type}")
+            elif isinstance(comp, rdkit.Chem.rdchem.Mol) or mol_type.lower()=='mol':
+                if not (isinstance(comp, rdkit.Chem.rdchem.Mol) and mol_type.lower()=='mol'):
+                    raise InputValueError(f"Key's of reaction is {type(comp)}, but mol_type is {mol_type}")
+                else:
+                    comp = Compound(comp)
             elif isinstance(comp, str):
-                mol = to_mol(comp, cid_type)
+                mol = to_mol(comp, mol_type)
                 comp = Compound(mol)
             else:
                 raise InputValueError('Cannot accept type{0}'.format(type(comp)))
             self.reaction.update({comp:coeff})
-
-        if balance_it:
-            self.rxn = self.balance(self.reaction)
-        elif not balance_it:
-            self.rxn = self.reaction
-
+            
+        super().__init__(self.reaction)
+        
     @property
     @lru_cache(maxsize=None)
     def standard_dGr_prime_list(self) -> Union[np.ndarray, None]:
@@ -103,7 +108,6 @@ class Reaction(_Reaction):
             return standard_dGr_list
         else:
             return None
-
 
     @property
     @lru_cache(maxsize=None)
@@ -114,7 +118,6 @@ class Reaction(_Reaction):
         else:
             return np.nan, np.nan
         
-
     @property
     def transformed_standard_dGr_prime(self) -> Tuple[np.float32, np.float32]:
         # 
@@ -125,38 +128,5 @@ class Reaction(_Reaction):
         else:
             return self.standard_dGr_prime
             
-            
-    
-    def balance(self, reaction: Dict[Compound, float], with_H2O=True, with_H_ion=True):
-        reaction = reaction.copy()
-        diff_atom = {}
-        for comp, coeff in reaction.items():
-            if comp.atom_bag is None:
-                return reaction
-            for atom, num in comp.atom_bag.items():
-                diff_atom[atom] = diff_atom.get(atom, 0) + coeff * num
-        num_H_ion = diff_atom.get('charge')
-        num_H2O = diff_atom.get('O')
-
-        compounds_smiles = [comp.Smiles for comp in reaction.keys()]
-        if with_H_ion and num_H_ion:
-            if '[H+]' not in compounds_smiles:
-                reaction[Compound(to_mol('[H+]', cid_type='smiles'))] = -num_H_ion
-            else:
-                for comp in reaction.keys():
-                    if comp.Smiles == '[H+]':
-                        reaction[comp] = reaction[comp] - num_H_ion
-                        break
-
-        if with_H2O and num_H2O:
-            if '[H]O[H]' not in compounds_smiles:
-                reaction[Compound(to_mol('[H]O[H]', cid_type='smiles'))] = -num_H2O
-            else:
-                for comp in reaction.keys():
-                    if comp.Smiles == '[H]O[H]':
-                        reaction[comp] = reaction[comp] - num_H2O
-                        break
-
-        return reaction
     
 

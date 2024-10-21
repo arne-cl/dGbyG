@@ -5,6 +5,7 @@ from functools import reduce
 from Bio.KEGG import REST
 from typing import Tuple, List
 from copy import deepcopy
+from typing import Dict
 
 import rdkit
 from rdkit import Chem
@@ -56,6 +57,7 @@ def parse_equation(equation:str, eq_sign=None) -> dict:
     return equation_dict
 
 
+
 def build_equation(equation_dict:dict, eq_sign='=') -> str:
     # 
     left, right = [], []
@@ -74,6 +76,7 @@ def build_equation(equation_dict:dict, eq_sign='=') -> str:
     return equation
 
 
+
 def to_mol_methods():
     methods = {'inchi': inchi_to_mol,
                'smiles': smiles_to_mol,
@@ -90,6 +93,7 @@ def to_mol_methods():
                'name': name_to_mol,
                }
     return methods
+
 
 
 def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.Mol:
@@ -128,6 +132,7 @@ def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.M
     return tuple(output.values())[0] if output else None
 
 
+
 def equation_dict_to_mol_dict(equation_dict:dict, cid_type):
     if type(cid_type)==str:
         cid_Types = [cid_type.lower()] * len(equation_dict)
@@ -141,10 +146,12 @@ def equation_dict_to_mol_dict(equation_dict:dict, cid_type):
     return mol_dict if not None in mol_dict else None
 
 
+
 def equation_to_mol_dict(equation, cid_type):
     equation_dict = parse_equation(equation)
     
     return equation_dict_to_mol_dict(equation_dict, cid_type)
+
 
 
 def equations_to_S(equations) -> pd.DataFrame:
@@ -158,6 +165,7 @@ def equations_to_S(equations) -> pd.DataFrame:
             S.loc[comp,i] = coeff
 
     return S
+
 
 
 def S_to_equations(S, mets) -> list:
@@ -206,6 +214,34 @@ def atom_bag(mol:rdkit.Chem.rdchem.Mol):
 
 
 
+def is_balanced(reaction:Dict[rdkit.Chem.rdchem.Mol, float|int], ignore_H_ion=False, ignore_H2O=False) -> bool:
+    diff_atom = {}
+    for mol, coeff in reaction.items():
+        if atom_bag(mol)==None:
+            return None
+        for atom, num in atom_bag(mol).items():
+            diff_atom[atom] = diff_atom.get(atom, 0) + coeff * num
+
+    if (diff_atom.get('R', 0) + diff_atom.get('*', 0)) == 0:
+        diff_atom.pop('R', None)
+        diff_atom.pop('*', None)
+
+    if ignore_H_ion:
+        diff_atom['H'] = diff_atom.get('H', 0) - diff_atom.get('charge', 0)
+        diff_atom['charge'] = 0
+    if ignore_H2O:
+        diff_atom['H'] = diff_atom.get('H', 0) - 2 * diff_atom.get('O', 0)
+        diff_atom['O'] = 0
+        
+    unbalanced_atom = {}
+    for atom, num in diff_atom.items():
+        if num!=0:
+            unbalanced_atom[atom] = num
+
+    return False if unbalanced_atom else True
+
+
+
 def get_pKa(compound, temperature:float=default_T, source='chemaxon_file') -> list:
     # compound: 
     # source: 
@@ -238,7 +274,6 @@ def get_pKa(compound, temperature:float=default_T, source='chemaxon_file') -> li
                 atoms_idx += 1
         
         return pka_copy
-
 
 
     def get_pka_from_chemaxon_rest(compound, temperature):
@@ -340,8 +375,6 @@ def calculate_pKa_batch_to_file(smiles_list:list, temperature=default_T) -> None
 
 
 
-
-
 def debye_hueckel(sqrt_ionic_strength: float, T_in_K: float) -> float:
     """Compute the ionic-strength-dependent transformation coefficient.
 
@@ -370,6 +403,7 @@ def debye_hueckel(sqrt_ionic_strength: float, T_in_K: float) -> float:
     B = 1.6  # 1 / M^0.5
     alpha = _a1 * T_in_K - _a2 * T_in_K ** 2 + _a3 * T_in_K ** 3  # kJ / mol
     return alpha / (1.0 / sqrt_ionic_strength + B)  # kJ / mol
+
 
 
 def ddGf_to_aqueous(pH: float, pMg: float, I: float, T: float, net_charge: float, num_H: float, num_Mg: float) -> float:
@@ -420,11 +454,13 @@ def iter_pseudo(dG_dis, d_charge, pH, T, pKa, n):
         return iter_pseudo(dG_dis, d_charge, pH, T, pKa, n+1)
 
 
+
 def pseudoisomers_ddGf(chemaxon_pKa, pH:float, T:float):
     # 
     dG_dis, d_charge = np.array([0]), np.array([0])
 
     return iter_pseudo(dG_dis, d_charge, pH, T, chemaxon_pKa, 0)[0]
+
 
 
 def pseudoisomers_delta_charge(chemaxon_pKa, pH:float, T:float):
@@ -434,6 +470,7 @@ def pseudoisomers_delta_charge(chemaxon_pKa, pH:float, T:float):
     return iter_pseudo(dG_dis, d_charge, pH, T, chemaxon_pKa, 0)[1]
 
 
+
 def pseudoisomers_ratio(pKa, pH:float, T:float):
     # 
     RT = R * T
@@ -441,6 +478,7 @@ def pseudoisomers_ratio(pKa, pH:float, T:float):
     ratio = np.exp(-ddGf_standard_prime_j_array/RT)/np.sum(np.exp(-ddGf_standard_prime_j_array/RT))
 
     return ratio
+
 
 
 def ddGf_to_dissociation(pH: float, T: float, pKa:dict):
@@ -453,10 +491,12 @@ def ddGf_to_dissociation(pH: float, T: float, pKa:dict):
     return ddGf_standard_prime
 
 
+
 def ddGf_to_elec(charge, e_potential):
     # 
     dg = FARADAY * charge * e_potential
     return dg
+
 
 
 def ddGf(compound, condition1, condition2):
@@ -490,6 +530,7 @@ def ddGf(compound, condition1, condition2):
     return ddGf_1_2[1] - ddGf_1_2[0]
 
 
+
 def ddGf_H_ion(compound, condition1, condition2):
     assert compound.Smiles == '[H+]'
     ddGf_1_2 = []
@@ -499,6 +540,7 @@ def ddGf_H_ion(compound, condition1, condition2):
         e_potential = condition.get('e_potential', default_e_potential)
         ddGf_1_2.append(R * T * np.log(10) * pH + ddGf_to_elec(1, e_potential))
     return ddGf_1_2[1] - ddGf_1_2[0]
+
 
 
 def ddGr(reaction, condition1, condition2):
@@ -541,10 +583,12 @@ def download_kegg_compound(entry:str) -> bool:
             return False
 
 
+
 def remove_map_num(mol):
     mol = deepcopy(mol)
     [atom.ClearProp('molAtomMapNumber') for atom in mol.GetAtoms()]
     return mol
+
 
 
 def reacting_map_num_of_rxn(rxn):
@@ -554,6 +598,7 @@ def reacting_map_num_of_rxn(rxn):
         map_num = map_num + [mol.GetAtomWithIdx(idx).GetAtomMapNum() for idx in atoms_idx]
     assert len(set(map_num))==len(map_num)
     return tuple(map_num)
+
 
 
 def map_num_to_idx_with_radius(mol:rdkit.Chem.rdchem.Mol, map_num:tuple, radius:int) -> tuple:
