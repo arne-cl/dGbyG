@@ -29,6 +29,7 @@ class Compound(_Compound):
             super().__init__(mol)
         else:
             raise InputValueError(f'mol_type must be a string, but got {type(mol_type)}')
+        self.mol_type = mol_type
         self.name = None
         self.compartment = None
         

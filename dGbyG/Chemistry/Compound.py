@@ -85,8 +85,8 @@ class _Compound(object):
         self._lz = np.log10(concentration)
 
     @lru_cache(16)
-    def pKa(self, temperature=default_T):
-        return get_pKa(self, temperature) if self.mol else None
+    def pKa(self, temperature=default_T) -> dict | None:
+        return get_pKa(self.Smiles, temperature) if self.mol else None
     
     @property
     def can_be_transformed(self) -> bool:
@@ -104,7 +104,7 @@ class _Compound(object):
 
     @property
     def Smiles(self) -> str:
-        return Chem.MolToSmiles(self.mol, canonical=True) if self.mol else None
+        return Chem.MolToSmiles(Chem.RemoveHs(self.mol), canonical=True) if self.mol else None
     
     @property
     def InChI(self) -> str:

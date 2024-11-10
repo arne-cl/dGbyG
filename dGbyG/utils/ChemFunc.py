@@ -1,4 +1,5 @@
-import os, re, json, requests
+import os, re, json
+import multiprocessing
 import numpy as np
 import pandas as pd
 from functools import reduce
@@ -15,10 +16,11 @@ RDLogger.DisableLog('rdApp.*')
 
 import libchebipy
 
-from dGbyG.config import kegg_additions_csv_path, kegg_compound_data_path, metanetx_database_path, hmdb_database_path, recon3d_mol_dir_path, chemaxon_pka_csv_path, chebi_database_path, lipidmaps_database_path
+from dGbyG.config import kegg_compound_data_path, chemaxon_pka_csv_path, chemaxon_pka_json_path
 from dGbyG.utils.constants import *
-from dGbyG.utils._to_mol_methods import *
 from dGbyG.utils.CustomError import *
+from dGbyG.utils._to_mol_methods import *
+from dGbyG.utils._get_pKa_methods import get_pKa_from_chemaxon, get_pka_from_json, get_pka_from_file
 
 pka_cache = {}
 
@@ -58,7 +60,7 @@ def parse_equation(equation:str, eq_sign=None) -> dict:
 
 
 
-def build_equation(equation_dict:dict, eq_sign='=') -> str:
+def build_equation(equation_dict:dict, eq_sign:str='=') -> str:
     # 
     left, right = [], []
     for comp, coeff in equation_dict.items():
@@ -133,7 +135,7 @@ def to_mol(cid:str, cid_type:str, Hs=True, sanitize=True) -> rdkit.Chem.rdchem.M
 
 
 
-def equation_dict_to_mol_dict(equation_dict:dict, cid_type):
+def equation_dict_to_mol_dict(equation_dict:dict, cid_type) -> Dict[rdkit.Chem.rdchem.Mol, float]|None:
     if type(cid_type)==str:
         cid_Types = [cid_type.lower()] * len(equation_dict)
     elif type(cid_type)==list:
@@ -147,7 +149,7 @@ def equation_dict_to_mol_dict(equation_dict:dict, cid_type):
 
 
 
-def equation_to_mol_dict(equation, cid_type):
+def equation_to_mol_dict(equation:str, cid_type:str):
     equation_dict = parse_equation(equation)
     
     return equation_dict_to_mol_dict(equation_dict, cid_type)
@@ -202,7 +204,7 @@ def normalize_mol(mol:rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
 
 
 
-def atom_bag(mol:rdkit.Chem.rdchem.Mol):
+def atom_bag(mol:rdkit.Chem.rdchem.Mol) -> Dict[str, int|float]:
     atom_bag = {}
     charge = 0
     for atom in mol.GetAtoms():
@@ -242,136 +244,31 @@ def is_balanced(reaction:Dict[rdkit.Chem.rdchem.Mol, float|int], ignore_H_ion=Fa
 
 
 
-def get_pKa(compound, temperature:float=default_T, source='chemaxon_file') -> list:
-    # compound: 
+def get_pKa(smiles, temperature:float=default_T, source='auto') -> dict:
     # source: 
-
-    def get_pka_from_chemaxon(compound, temperature):
-        # 
-        types = 'acidic,basic'
-        pKaLowerLimit = -20
-        pKaUpperLimit = 20
-        prefix = 'dynamic'
-        T = temperature
-        a = 8
-        b = 8
-        smiles = compound.Smiles
-
-        pka = os.popen(f"cxcalc pKa -m macro -t {types} -T {T} -P {prefix} -a {a} -b {b}\
-                       -i {pKaLowerLimit} -x {pKaUpperLimit} '{smiles}'").readlines()
-        
-        pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
-        pka = dict(zip(pka[0].strip().split('\t'), pka[1].strip().split('\t')))
-        atoms_idx = 0
-        for k, v in pka.items():
-            if v!='' and k.startswith('apKa'):
-                atomIndex = pka['atoms'].split(',')[atoms_idx]
-                pka_copy['acidicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
-                atoms_idx += 1
-            elif v!='' and k.startswith('bpKa'):
-                atomIndex = pka['atoms'].split(',')[atoms_idx]
-                pka_copy['basicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
-                atoms_idx += 1
-        
-        return pka_copy
-
-
-    def get_pka_from_chemaxon_rest(compound, temperature):
-        # 
-        chemaxon_pka_api = 'https://jchem-microservices.chemaxon.com/jws-calculations/rest-v1/calculator/calculate/pka'
-        headers = {'accept': '*/*', 'Content-Type': 'application/json'}
-        pka_req_body = json.dumps({
-            "inputFormat": "smiles",
-            "micro": False,
-            "outputFormat": "smiles",
-            "outputStructureIncluded": False,
-            "pKaLowerLimit": -20,
-            "pKaUpperLimit": 20,
-            "prefix": "STATIC",
-            "structure": compound.Smiles,
-            "temperature": temperature,
-            "types": "acidic, basic",
-            })
-        try:
-            pka = requests.post(chemaxon_pka_api, data=pka_req_body, headers=headers).json()
-            return pka if not pka.get('error') else None
-        except:
-            return None
-        
-    def get_pka_from_file(compound, temperature):
-        # 
-        smiles = compound.Smiles
-        if 'chemaxon_file' not in pka_cache.keys():
-            pka_cache['chemaxon_file'] = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
-        pKa_df = pka_cache['chemaxon_file']
-
-        if smiles not in pKa_df.index:
-            print(smiles, 'pka not in file')
-            calculate_pKa_batch_to_file([smiles])
-            pKa_df = pd.read_csv(chemaxon_pka_csv_path, index_col=0)
-            pka_cache['chemaxon_file'] = pKa_df
-
-        pka_copy = {'acidicValuesByAtom':[], 'basicValuesByAtom': []}
-        pka = pKa_df.loc[smiles, :]
-        atoms_idx = 0
-        for k, v in pka.items():
-            if pd.notna(v) and k.startswith('apKa'):
-                atomIndex = pka['atoms'].split(',')[atoms_idx]
-                pka_copy['acidicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
-                atoms_idx += 1
-            elif pd.notna(v) and k.startswith('bpKa'):
-                atomIndex = pka['atoms'].split(',')[atoms_idx]
-                pka_copy['basicValuesByAtom'].append({'atomIndex':int(atomIndex), 'value':float(v)})
-                atoms_idx += 1
-
-        return pka_copy
-        
+    methods = {}
+    if os.path.isfile(chemaxon_pka_json_path):
+        methods = {'chemaxon_pKa_json':get_pka_from_json}
+    elif os.path.isfile(chemaxon_pka_csv_path):
+        methods.update({'chemaxon_pKa_csv':get_pka_from_file})
+    methods.update({'chemaxon':get_pKa_from_chemaxon})
+    
     # the main body of this function
-    methods = {'chemaxon':get_pka_from_chemaxon,
-               'chemaxon_file': get_pka_from_file,
-               'chemaxon_rest': get_pka_from_chemaxon_rest,}
     if source=='auto':
         for source in methods:
-            if pKa := methods[source](compound, temperature=temperature):
+            if pKa := methods[source](smiles, temperature=temperature):
                 break
+    elif source in methods.keys():
+        pKa = methods[source](smiles, temperature=temperature)
     else:
-        _get_pka = methods.get(source)
-        pKa = _get_pka(compound, temperature=temperature)
+        raise InputValueError('source must be one of', methods.keys())
+    pKa = deepcopy(pKa)
+    for xpKa in pKa.values():
+        for atom_pKa in xpKa.copy():
+            if np.isnan(atom_pKa['value']):
+                xpKa.remove(atom_pKa)
    
     return pKa
-
-
-
-def calculate_pKa_batch_to_file(smiles_list:list, temperature=default_T) -> None:
-    # 
-    with open('comps.smi', 'w') as f:
-        f.writelines([x+'\n' for x in smiles_list])
-
-    types = 'acidic,basic'
-    pKaLowerLimit = -20
-    pKaUpperLimit = 20
-    prefix = 'dynamic'
-    T = temperature
-    a = 8
-    b = 8
-
-    pka = os.popen(f"cxcalc pKa -m macro -t {types} -T {T} -P {prefix} -a {a} -b {b}\
-                       -i {pKaLowerLimit} -x {pKaUpperLimit} comps.smi")
-    
-    #a = os.popen(f"cxcalc pKa -t acidic,basic -a 8 -b 8 comps.smi")
-    with open('comps_pKa.tsv', 'w') as f:
-        f.write(pka.read())
-    
-    p = pd.read_csv('comps_pKa.tsv', sep='\t').drop(columns='id')
-    p.index = smiles_list
-    p = p.reset_index()
-    p = p.rename(columns={'index':'smiles'})
-    op = pd.read_csv(chemaxon_pka_csv_path)
-    p = pd.concat([op,p]).drop_duplicates(subset=['smiles'], keep='last')
-    p.to_csv(chemaxon_pka_csv_path, index=False)
-    print(f'Results saved at {chemaxon_pka_csv_path}.')
-
-    return None
 
 
 
@@ -425,8 +322,8 @@ def ddGf_to_aqueous(pH: float, pMg: float, I: float, T: float, net_charge: float
 
 def iter_pseudo(dG_dis, d_charge, pH, T, pKa, n):
     # 
-    acidicV = dict([(x['atomIndex'],x['value']) for x in pKa['acidicValuesByAtom']])
-    basicV = dict([(x['atomIndex'],x['value']) for x in pKa['basicValuesByAtom']])
+    acidicV = dict([(x['atomIndex'],x['value']) for x in pKa['acidicValuesByAtom'] if not np.isnan(x['value'])])
+    basicV = dict([(x['atomIndex'],x['value']) for x in pKa['basicValuesByAtom'] if not np.isnan(x['value'])])
     t = list(set(acidicV.keys())|set(basicV.keys()))
     t.sort()
 

@@ -17,4 +17,5 @@ chebi_database_path = os.path.join(package_path, 'data', 'libChEBI')
 lipidmaps_database_path = os.path.join(package_path, 'data', 'LIPID_MAPS', 'lipidmaps_ids_cc0.tsv')
 recon3d_mol_dir_path = os.path.join(package_path, 'data', 'Recon3D', 'mol')
 chemaxon_pka_csv_path = os.path.join(package_path, 'data', 'chemaxon_pKa.csv')
-pKa_json_file_path = os.path.join(package_path, 'data', 'pKa.json')
+chemaxon_pka_json_path = os.path.join(package_path, 'data', 'chemaxon_pKa.json')
+chemaxon_jar_dir = "/opt/chemaxon/jchemsuite/lib" 

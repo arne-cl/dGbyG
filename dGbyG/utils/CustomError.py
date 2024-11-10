@@ -7,3 +7,7 @@ class NoPkaError(Exception):
 
 class UnbalanceError(Exception):
     pass
+
+class NoLicenseError(Exception):
+    '''No ChemAxon available licenses found'''
+    pass
