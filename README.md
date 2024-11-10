@@ -68,16 +68,19 @@ conda create -n dGbyG && conda activate dGbyG
 
 
 ### Step 3: Install Dependencies and dGbyG
-Install the required dependencies:
-
+#### Install the required dependencies:
 ```bash
 cd /path/to/dGbyG
 conda install --file requirements.txt
 pip install libChEBIpy
 ```
 
-Install dGbyG
+#### Install `chemaxon.marvin.calculations.pKaPlugin`(optional)
+The `chemaxon.marvin.calculations.pKaPlugin` is used for pKa calculation. It is not necessary for the basic usage of dGbyG, but it is recommended for users who want to calculate transformed standard Gibbs energy change between different pH. Note that this plugin is not free, and you can find more information from the ChemAxon website:
+- https://docs.chemaxon.com/display/docs/calculators_index.md
 
+
+#### Install dGbyG
 ```bash
 cd /path/to/dGbyG
 pip install .
