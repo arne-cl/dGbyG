@@ -9,6 +9,7 @@ inference_model_state_dict_dir = os.path.join(package_path, 'network', 'best_mod
 train_data_path = os.path.join(package_path, 'data', 'TrainingData.csv')
 
 # compound databases
+kegg_database_path = os.path.join(package_path, 'data', 'KEGG')
 kegg_compound_data_path = os.path.join(package_path, 'data', 'kegg_compound')
 kegg_additions_csv_path = os.path.join(package_path, 'data', 'kegg_compound', 'kegg_additions.csv')
 metanetx_database_path = os.path.join(package_path, 'data', 'MetaNetX', 'chem_prop.tsv')

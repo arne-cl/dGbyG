@@ -1,7 +1,7 @@
 
 import os
-import pandas as pd
 import libchebipy
+import pandas as pd
 from rdkit import Chem
 from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit import RDLogger

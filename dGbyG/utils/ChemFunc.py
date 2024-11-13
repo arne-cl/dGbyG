@@ -1,12 +1,8 @@
-import os, re, json
-import multiprocessing
+import os, re
 import numpy as np
 import pandas as pd
-from functools import reduce
-from Bio.KEGG import REST
-from typing import Tuple, List
 from copy import deepcopy
-from typing import Dict
+from typing import Dict, Tuple, List
 
 import rdkit
 from rdkit import Chem
@@ -14,13 +10,11 @@ from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
-import libchebipy
-
-from dGbyG.config import kegg_compound_data_path, chemaxon_pka_csv_path, chemaxon_pka_json_path
+from dGbyG.config import chemaxon_pka_csv_path, chemaxon_pka_json_path
 from dGbyG.utils.constants import *
 from dGbyG.utils.CustomError import *
-from dGbyG.utils._to_mol_methods import *
-from dGbyG.utils._get_pKa_methods import get_pKa_from_chemaxon, get_pka_from_json, get_pka_from_file
+from ._to_mol_methods import *
+from ._get_pKa_methods import get_pKa_from_chemaxon, get_pka_from_json, get_pka_from_file
 
 pka_cache = {}
 
@@ -244,15 +238,20 @@ def is_balanced(reaction:Dict[rdkit.Chem.rdchem.Mol, float|int], ignore_H_ion=Fa
 
 
 
-def get_pKa(smiles, temperature:float=default_T, source='auto') -> dict:
-    # source: 
+def get_pKa_methods():
     methods = {}
     if os.path.isfile(chemaxon_pka_json_path):
         methods = {'chemaxon_pKa_json':get_pka_from_json}
     elif os.path.isfile(chemaxon_pka_csv_path):
         methods.update({'chemaxon_pKa_csv':get_pka_from_file})
     methods.update({'chemaxon':get_pKa_from_chemaxon})
-    
+    return methods
+
+
+
+def get_pKa(smiles, temperature:float=default_T, source='auto') -> dict:
+    # source: 
+    methods = get_pKa_methods()
     # the main body of this function
     if source=='auto':
         for source in methods:
@@ -446,38 +445,6 @@ def ddGr(reaction, condition1, condition2):
         print(ddGf_list)
         return None
     return sum(ddGf_list)
-
-
-
-def download_kegg_compound(entry:str) -> bool:
-    # download MolFile from kegg compound database
-    # return True if download successful, return False if failed, return None if file existed. 
-
-    file_name = entry + '.mol'
-    file_path = os.path.join(kegg_compound_data_path, file_name)
-    
-    # judge if the direaction kegg_compound exists
-    if not os.path.isdir(kegg_compound_data_path):
-        os.mkdir(kegg_compound_data_path)
-        
-    # judge if the mol file exists, if not then download the mol file
-    try:
-        mol = REST.kegg_get(entry+'/mol')
-        with open(file_path, 'w') as f:
-            f.write(REST.kegg_get(entry+'/mol').read())
-            print(entry, 'download successful!')
-        return True
-    except:
-        try:
-            mol = REST.kegg_get(entry)
-            mol_name = mol.readlines()[1].split()[-1]
-            with open(file_path, 'w') as f:
-                f.write('')
-                #print(f'{entry} is {mol_name}, which has no Molfile')
-            return True
-        except:
-            #print(f'{entry} is not found in kegg')
-            return False
 
 
 

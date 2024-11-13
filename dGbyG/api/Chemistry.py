@@ -11,26 +11,29 @@ from torch_geometric.loader import DataLoader
 from dGbyG.config import *
 from dGbyG.utils.constants import *
 from dGbyG.utils.ChemFunc import *
-from dGbyG.Chemistry import _Compound, _Reaction
 from dGbyG.utils.CustomError import *
+from dGbyG.Chemistry import _Compound, _Reaction
+from dGbyG.db import db_Compound
 
 from .utils import predict_standard_dGf_prime, predict_standard_dGr_prime
 
 
-class Compound(_Compound):
+class Compound(_Compound, db_Compound):
     def __init__(self, mol: Union[rdkit.Chem.rdchem.Mol, str], mol_type:str=None, input_type:str = 'mol') -> None:
         if mol_type is None:
             mol_type = input_type
+        self.mol_type = mol_type.lower()
         if isinstance(mol_type, str):
-            if mol_type=='mol':
-                mol = mol
-            else:
-                mol = to_mol(mol, mol_type)
-            super().__init__(mol)
+            self.mol = mol if mol_type=='mol' else to_mol(mol, mol_type)
+            _Compound.__init__(self, self.mol)
         else:
             raise InputValueError(f'mol_type must be a string, but got {type(mol_type)}')
-        self.mol_type = mol_type
-        self.name = None
+        
+        if self.mol_type == 'mol':
+            db_Compound.__init__(self, self.Smiles, 'smiles')
+        else:
+            db_Compound.__init__(self, mol, self.mol_type)
+        
         self.compartment = None
         
     @property
