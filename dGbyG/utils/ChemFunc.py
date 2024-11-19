@@ -249,7 +249,7 @@ def get_pKa_methods():
 
 
 
-def get_pKa(smiles, temperature:float=default_T, source='auto') -> dict:
+def get_pKa(smiles, temperature:float=default_T, source='chemaxon_pKa_json') -> dict:
     # source: 
     methods = get_pKa_methods()
     # the main body of this function
@@ -262,12 +262,14 @@ def get_pKa(smiles, temperature:float=default_T, source='auto') -> dict:
     else:
         raise InputValueError('source must be one of', methods.keys())
     pKa = deepcopy(pKa)
-    for xpKa in pKa.values():
-        for atom_pKa in xpKa.copy():
-            if np.isnan(atom_pKa['value']):
-                xpKa.remove(atom_pKa)
-   
-    return pKa
+    if pKa is None:
+        return None
+    else:
+        for xpKa in pKa.values():
+            for atom_pKa in xpKa.copy():
+                if np.isnan(atom_pKa['value']):
+                    xpKa.remove(atom_pKa)
+        return pKa
 
 
 

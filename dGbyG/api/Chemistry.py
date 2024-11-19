@@ -61,7 +61,9 @@ class Compound(_Compound, db_Compound):
     
     @property
     def transformed_standard_dGf_prime(self) -> Tuple[np.float32, np.float32]:
-        if self.can_be_transformed:
+        if self.condition == default_condition:
+            return self.standard_dGf_prime
+        elif self.can_be_transformed:
             transformed_standard_dg = (self.standard_dGf_prime[0] + self.transformed_ddGf)
             return transformed_standard_dg, self.standard_dGf_prime[1]
         else:
@@ -125,6 +127,8 @@ class Reaction(_Reaction):
     @property
     def transformed_standard_dGr_prime(self) -> Tuple[np.float32, np.float32]:
         # 
+        if self.condition == default_condition:
+            return self.standard_dGr_prime
         if self.can_be_transformed:
             transformed_ddGr = np.sum([comp.transformed_ddGf * coeff for comp, coeff in self.reaction.items()], axis=0)
             transformed_standard_dGr_prime = self.standard_dGr_prime[0] + transformed_ddGr

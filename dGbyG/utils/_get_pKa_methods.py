@@ -4,6 +4,7 @@ import json
 import jpype
 import requests
 import multiprocessing
+from copy import deepcopy
 import pandas as pd
 from typing import List
 from tqdm import tqdm
@@ -98,6 +99,7 @@ def get_pKa_from_chemaxon(smiles:str, temperature:float=default_T) -> dict|None:
     if res == "ChemAxon license not found":
         raise NoLicenseError("ChemAxon license not found")
     elif res == "pKa calculation failed":
+        print(smiles, res)
         return None
     elif isinstance(res, dict):
         return res
@@ -158,7 +160,7 @@ def get_pka_from_json(smiles:str, temperature:float=default_T) -> dict|None:
             pka_cache['chemaxon_pKa_json'] = json.load(f)
             pKa_json = pka_cache['chemaxon_pKa_json']
         
-    return pKa_json[smiles][str(temperature)].copy()
+    return deepcopy(pKa_json[smiles][str(temperature)])
 
 
 
