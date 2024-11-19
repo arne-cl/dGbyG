@@ -92,3 +92,5 @@ Run the demo code using Jupyter Notebook:
 ## References
 If you use or extend our work, please cite the paper as follows:
 - doi: https://doi.org/10.1101/2024.01.15.575679
+
+If you have any questions, please do not hesitate to contact me via email at <12133024@mail.sustech.edu.cn>.
