@@ -191,8 +191,8 @@ def normalize_mol(mol:rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
     #te = rdMolStandardize.TautomerEnumerator() # idem
     #mol = te.Canonicalize(mol)
     #mol = rdMolStandardize.Cleanup(mol)
-    mol = rdMolStandardize.ChargeParent(mol)
-    mol = rdMolStandardize.IsotopeParent(mol)
+    #mol = rdMolStandardize.ChargeParent(mol)
+    #mol = rdMolStandardize.IsotopeParent(mol)
     #mol = rdMolStandardize.StereoParent(mol)
     return Chem.AddHs(mol)
 

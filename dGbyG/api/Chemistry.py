@@ -108,7 +108,7 @@ class Reaction(_Reaction):
     @lru_cache(maxsize=None)
     def standard_dGr_prime_list(self) -> Union[np.ndarray, None]:
         if self.is_balanced() == True:
-            standard_dGr_list = np.sum([comp.standard_dGf_prime_list * coeff for comp, coeff in self.rxn.items()], axis=0)
+            standard_dGr_list = np.sum([comp.standard_dGf_prime_list * coeff for comp, coeff in self.reaction.items()], axis=0)
             return standard_dGr_list
         else:
             return None
@@ -126,7 +126,7 @@ class Reaction(_Reaction):
     def transformed_standard_dGr_prime(self) -> Tuple[np.float32, np.float32]:
         # 
         if self.can_be_transformed:
-            transformed_ddGr = np.sum([comp.transformed_ddGf * coeff for comp, coeff in self.rxn.items()], axis=0)
+            transformed_ddGr = np.sum([comp.transformed_ddGf * coeff for comp, coeff in self.reaction.items()], axis=0)
             transformed_standard_dGr_prime = self.standard_dGr_prime[0] + transformed_ddGr
             return transformed_standard_dGr_prime, self.standard_dGr_prime[1]
         else:
