@@ -73,6 +73,7 @@ conda create -n dGbyG && conda activate dGbyG
 cd /path/to/dGbyG
 conda install --file requirements.txt
 pip install libChEBIpy
+pip install pubchempy
 ```
 
 #### Install `chemaxon.marvin.calculations.pKaPlugin`(optional)
@@ -82,7 +83,7 @@ The `chemaxon.marvin.calculations.pKaPlugin` is used for pKa calculation. It is 
 #### Install dGbyG
 ```bash
 cd /path/to/dGbyG
-pip install .
+pip install -e .
 ```
 
 ### Step 4: Run the Code
