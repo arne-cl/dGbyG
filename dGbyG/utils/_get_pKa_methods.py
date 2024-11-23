@@ -45,7 +45,7 @@ def _batch_get_pKa_from_chemaxon(smiles_list:List[str], temperature:float=defaul
     jar_dir = chemaxon_jar_dir 
     fileList = [os.path.join(jar_dir,i)  for i in os.listdir(jar_dir)]
 
-    jpype.startJVM()
+    jpype.startJVM('-Dchemaxon.license.url=/home/fanwc/.chemaxon/license.cxl')
     for p in fileList:
         jpype.addClassPath(p)
 
